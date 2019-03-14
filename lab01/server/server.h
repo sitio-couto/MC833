@@ -1,18 +1,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/socket.h>
-#include <stdlib.h>
 #include <netinet/in.h>
+#include <netdb.h>
+#include <stdlib.h>
 #include <string.h>
 #define PORT 8080
-
-struct addrinfo {
-  int ai_flags;
-  int ai_family;
-  int ai_socktype;
-  int ai_protocol;
-  size_t ai_addrlen;
-  struct sockaddr *ai_addr;
-  char *ai_canonname;
-  struct addrinfo *ai_next;
-};
