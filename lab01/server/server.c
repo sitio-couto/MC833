@@ -1,4 +1,6 @@
 #include "server.h"
+void request_options(int);
+
 
 void sigchld_handler(int s)
 {
@@ -18,8 +20,7 @@ void *get_in_addr(struct sockaddr *sa){
 }
 
 int main(void){
-
-int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
+  int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
   struct addrinfo hints, *servinfo, *p;
   struct sockaddr_storage their_addr; // connector's address information
   socklen_t sin_size;
@@ -88,8 +89,10 @@ int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
       printf("server: got connection from %s\n", s);
       if (!fork()) { // this is the child process
           close(sockfd); // child doesn't need the listener
-          if (send(new_fd, "Hello, world!", 13, 0) == -1)
-              perror("send");
+
+          request_options(new_fd);
+          // if (send(new_fd, "Hello, world!", 13, 0) == -1)
+          //     perror("send");
           close(new_fd);
           exit(0);
       }
@@ -97,4 +100,23 @@ int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
   }
 
   return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void request_options(int socket) {
+  char *message;
+  memset(message, 0, 100*sizeof(char));
+
+  if (send(socket, message, strlen(message), 0) == -1)
+      perror("send");
+
+  while(1){
+    read(socket, message, 100);
+
+    printf("server: %s", message);
+
+    write(socket, "Message received.", 17);
+
+  }
 }

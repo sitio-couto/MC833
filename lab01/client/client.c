@@ -1,5 +1,7 @@
 #include "client.h"
 
+void make_request(int);
+
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -21,12 +23,14 @@ int main(int argc, char *argv[])
         exit(1);
     }
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC;
+    // hints.ai_family = AF_UNSPEC;
+    hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }
+
     // loop through all the results and connect to the first we can
     for(p = servinfo; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
@@ -41,6 +45,7 @@ int main(int argc, char *argv[])
         }
         break;
     }
+
     if (p == NULL) {
         fprintf(stderr, "client: failed to connect\n");
         return 2;
@@ -49,13 +54,17 @@ int main(int argc, char *argv[])
 
     printf("client: connecting to %s\n", s);
     freeaddrinfo(servinfo); // all done with this structure
-    if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-        perror("recv");
-        exit(1);
-    }
-    buf[numbytes] = '\0';
-    printf("client: received '%s'\n",buf);
+    make_request(sockfd);
     close(sockfd);
 
     return 0;
+}
+
+void make_request(int sockfd) {
+  if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+      perror("recv");
+      exit(1);
+  }
+  buf[numbytes] = '\0';
+  printf("client: received '%s'\n",buf);
 }
