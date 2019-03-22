@@ -61,14 +61,52 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+<<<<<<< HEAD
 void make_request(int sockfd) {
   int numbytes;
   char buf[MAXDATASIZE];
 
   if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
       perror("recv");
-      exit(1);
+=======
+
+  // if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+  //     perror("recv");
+  //     exit(1);
+  // }
+
+void make_request(int socket) {
+  char buffer[256];
+  int msg_len, buff_len = 256;
+
+  // receive server connection set confirmation
+  if ((msg_len = recv(socket, buffer, buff_len, 0)) == -1) {
+    perror("ERROR: client failed to receive connection comfirmation");
+    exit(1);
+  } else {
+    buffer[msg_len] = '\0';
+    printf("%s\n", buffer);
   }
-  buf[numbytes] = '\0';
-  printf("client: received '%s'\n",buf);
+
+  while(1) {
+    // Scan and send user request
+    printf("awaiting input:\n");
+    scanf(" %[^\n]", buffer);
+    if (send(socket, buffer, strlen(buffer), 0) == -1) {
+      perror("ERROR: client failed to send messsage");
+>>>>>>> 127394434bd53ae498e5497678a83c4e4e31ef3e
+      exit(1);
+    }
+
+    // Wait for server reception confirmation
+    if((msg_len = recv(socket, buffer, buff_len, 0)) == -1){
+      perror("ERROR: client failed to receive message");
+      exit(1);
+    } else if (msg_len == 0) { // if server not responding
+      printf("ERROR: the server socket is closed (server might be down)\n");
+      break;
+    }
+  }
+
+  return;
 }

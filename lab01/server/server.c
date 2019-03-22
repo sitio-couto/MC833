@@ -20,7 +20,7 @@ void *get_in_addr(struct sockaddr *sa){
 }
 
 int main(void){
-  int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
+  int sockfd, new_fd, pid;  // listen on sock_fd, new connection on new_fd
   struct addrinfo hints, *servinfo, *p;
   struct sockaddr_storage their_addr; // connector's address information
   socklen_t sin_size;
@@ -90,9 +90,8 @@ int main(void){
       if (!fork()) { // this is the child process
           close(sockfd); // child doesn't need the listener
 
-          request_options(new_fd);
-          // if (send(new_fd, "Hello, world!", 13, 0) == -1)
-          //     perror("send");
+          request_options(new_fd); // Communication function
+
           close(new_fd);
           exit(0);
       }
@@ -105,26 +104,41 @@ int main(void){
 ////////////////////////////////////////////////////////////////////////////////
 
 void request_options(int socket) {
-  char message[MAXDATASIZE];
-  strcpy(message, "(1) listar todas as pessoas formadas em um determinado curso\n");
-  if (send(socket, message, strlen(message), 0) == -1)
-      perror("send");
-  strcpy(message, "(2) listar as habilidades dos perfis que moram em uma determinada cidade\n");
-  if (send(socket, message, strlen(message), 0) == -1)
-      perror("send");
-  strcpy(message, "(3) acrescentar uma nova experiência em um perfil\n");
-  if (send(socket, message, strlen(message), 0) == -1)
-      perror("send");
+  char buffer[256];
+  int msg_len, buff_len = 256; // TODO: set same message size for client and server
 
-  // memset(message, 0, 100*sizeof(char));
-
+  // notify connections is set
+  if (send(socket, "connection is set...", 20, 0) == -1) {
+    perror("ERROR: server failed to send connection comfirmation");
+    exit(0);
+  }
 
   while(1){
-    read(socket, message, 100);
+    // Await new message from client
+    printf("server awaiting new message...\n");
+    if ((msg_len = recv(socket, buffer, buff_len, 0)) == -1) {
+      perror("ERROR: server failed to receive message");
+      exit(1);
+    } else if (msg_len == 0) { // if client not responding
+      printf("ERROR: the client socket is colosed (client might be down)\n");
+      break;
+    }
 
-    printf("server: %s", message);
+    // Adjust EOF to the received msg size
+    buffer[msg_len] = '\0';
 
-    write(socket, "Message received.", 17);
+    // notify client that the message was received
+    printf("client: %s\n", buffer);
+    if (send(socket, "message received", 17, 0) == -1) {
+      perror("ERROR: server failed to send comfirmation");
+      exit(1);
+    }
 
+    // TODO Execute message request
+
+    // End connection if requested by client
+    if (!strcmp(buffer, "exit")) break;
   }
+
+  return;
 }
