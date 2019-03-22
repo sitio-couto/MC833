@@ -73,7 +73,7 @@ void make_request(int socket) {
   // receive server connection set confirmation
   if ((msg_len = recv(socket, buffer, buff_len, 0)) == -1) {
     perror("ERROR: client failed to receive connection comfirmation");
-    exit(0);
+    exit(1);
   } else {
     buffer[msg_len] = '\0';
     printf("%s\n", buffer);
@@ -85,16 +85,16 @@ void make_request(int socket) {
     scanf(" %[^\n]", buffer);
     if (send(socket, buffer, strlen(buffer), 0) == -1) {
       perror("ERROR: client failed to send messsage");
-      exit(0);
+      exit(1);
     }
 
     // Wait for server reception confirmation
     if((msg_len = recv(socket, buffer, buff_len, 0)) == -1){
       perror("ERROR: client failed to receive message");
-      exit(0);
+      exit(1);
     } else if (msg_len == 0) { // if server not responding
-      perror("ERROR: the server socket is closed (server might be down)");
-      exit(0);
+      printf("ERROR: the server socket is closed (server might be down)\n");
+      break;
     }
   }
 

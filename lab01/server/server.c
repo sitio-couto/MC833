@@ -118,10 +118,10 @@ void request_options(int socket) {
     printf("server awaiting new message...\n");
     if ((msg_len = recv(socket, buffer, buff_len, 0)) == -1) {
       perror("ERROR: server failed to receive message");
+      exit(1);
+    } else if (msg_len == 0) { // if client not responding
+      printf("ERROR: the client socket is colosed (client might be down)\n");
       break;
-    } else if (msg_len == 0) {
-      perror("ERROR: the client socket is colosed (client might be down)");
-      exit(0);
     }
 
     // Adjust EOF to the received msg size
@@ -131,7 +131,7 @@ void request_options(int socket) {
     printf("client: %s\n", buffer);
     if (send(socket, "message received", 17, 0) == -1) {
       perror("ERROR: server failed to send comfirmation");
-      break;
+      exit(1);
     }
 
     // TODO Execute message request
