@@ -60,11 +60,40 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void make_request(int sockfd) {
-  if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-      perror("recv");
-      exit(1);
+
+  // if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+  //     perror("recv");
+  //     exit(1);
+  // }
+
+void make_request(int socket) {
+  char buffer[256];
+  int msg_len, buff_len = 256;
+
+  // receive server connection set confirmation
+  if ((msg_len = recv(socket, buffer, buff_len, 0)) == -1) {
+    perror("ERROR: client failed to receive connection comfirmation");
+    exit(0);
+  } else {
+    buffer[msg_len] = '\0';
+    printf("%s\n", buffer);
   }
-  buf[numbytes] = '\0';
-  printf("client: received '%s'\n",buf);
+
+  while(1) {
+    // Scan and send user request
+    printf("awaiting input:\n");
+    scanf(" %[^\n]", buffer);
+    if (send(socket, buffer, strlen(buffer), 0) == -1) {
+      perror("ERROR: client failed to send messsage");
+      exit(0);
+    }
+
+    // Wait for server reception comfirmation
+    if((msg_len = recv(socket, buffer, buff_len, 0)) == -1){
+      perror("ERROR: client failed to receive message");
+      exit(0);
+    }
+  }
+
+  return;
 }
