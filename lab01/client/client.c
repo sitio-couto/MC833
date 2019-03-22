@@ -61,19 +61,10 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-<<<<<<< HEAD
-void make_request(int sockfd) {
-  int numbytes;
-  char buf[MAXDATASIZE];
-
-  if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-      perror("recv");
-=======
-
   // if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
   //     perror("recv");
   //     exit(1);
-  // }
+// }
 
 void make_request(int socket) {
   char buffer[256];
@@ -94,7 +85,6 @@ void make_request(int socket) {
     scanf(" %[^\n]", buffer);
     if (send(socket, buffer, strlen(buffer), 0) == -1) {
       perror("ERROR: client failed to send messsage");
->>>>>>> 127394434bd53ae498e5497678a83c4e4e31ef3e
       exit(1);
     }
 
