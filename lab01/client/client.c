@@ -13,8 +13,9 @@ void *get_in_addr(struct sockaddr *sa)
 
 int main(int argc, char *argv[])
 {
-    int sockfd, numbytes;
-    char buf[MAXDATASIZE];
+    int sockfd;
+    // int numbytes;
+    // char buf[MAXDATASIZE];
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];
@@ -61,6 +62,9 @@ int main(int argc, char *argv[])
 }
 
 void make_request(int sockfd) {
+  int numbytes;
+  char buf[MAXDATASIZE];
+
   if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
       perror("recv");
       exit(1);

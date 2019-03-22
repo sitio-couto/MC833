@@ -105,11 +105,19 @@ int main(void){
 ////////////////////////////////////////////////////////////////////////////////
 
 void request_options(int socket) {
-  char *message;
-  memset(message, 0, 100*sizeof(char));
-
+  char message[MAXDATASIZE];
+  strcpy(message, "(1) listar todas as pessoas formadas em um determinado curso\n");
   if (send(socket, message, strlen(message), 0) == -1)
       perror("send");
+  strcpy(message, "(2) listar as habilidades dos perfis que moram em uma determinada cidade\n");
+  if (send(socket, message, strlen(message), 0) == -1)
+      perror("send");
+  strcpy(message, "(3) acrescentar uma nova experiência em um perfil\n");
+  if (send(socket, message, strlen(message), 0) == -1)
+      perror("send");
+
+  // memset(message, 0, 100*sizeof(char));
+
 
   while(1){
     read(socket, message, 100);
