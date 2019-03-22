@@ -1,5 +1,6 @@
 #include "server.h"
 void request_options(int);
+void get_profile(char*);
 
 
 void sigchld_handler(int s)
@@ -113,6 +114,8 @@ void request_options(int socket) {
     exit(0);
   }
 
+  get_profile("maria@unicamp.br");
+
   while(1){
     // Await new message from client
     printf("server awaiting new message...\n");
@@ -138,6 +141,51 @@ void request_options(int socket) {
 
     // End connection if requested by client
     if (!strcmp(buffer, "exit")) break;
+  }
+
+  return;
+}
+
+void names_by_course(char* course) {
+
+  return;
+}
+
+void habilities_by_city(char* city) {
+
+  return;
+}
+
+void add_experience(char* email, char* experience) {
+
+  return;
+}
+
+void get_experience(char* email) {
+
+  return;
+}
+
+void get_profile(char* email) {
+
+  char c, file[80];
+  FILE *fptr;
+
+  strcpy(file, "server/data/");
+  strcat(file, email);
+  strcat(file, ".txt");
+
+  if ((fptr = fopen(file,"r")) == NULL){
+      printf("Error! opening file: %s", file);
+      // Program exits if the file pointer returns NULL.
+      exit(1);
+  }
+
+  // Read contents from file
+  c = fgetc(fptr);
+  while (c != EOF){
+    printf("%c", c);
+    c = fgetc(fptr);
   }
 
   return;
