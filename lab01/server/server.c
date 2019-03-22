@@ -119,8 +119,13 @@ void request_options(int socket) {
     if ((msg_len = recv(socket, buffer, buff_len, 0)) == -1) {
       perror("ERROR: server failed to receive message");
       break;
+    } else if (msg_len == 0) {
+      perror("ERROR: the client socket is colosed (client might be down)");
+      exit(0);
     }
-    buffer[msg_len] = '\0'; // Adjust EOF to the received msg size
+
+    // Adjust EOF to the received msg size
+    buffer[msg_len] = '\0';
 
     // notify client that the message was received
     printf("client: %s\n", buffer);

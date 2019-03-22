@@ -88,9 +88,12 @@ void make_request(int socket) {
       exit(0);
     }
 
-    // Wait for server reception comfirmation
+    // Wait for server reception confirmation
     if((msg_len = recv(socket, buffer, buff_len, 0)) == -1){
       perror("ERROR: client failed to receive message");
+      exit(0);
+    } else if (msg_len == 0) { // if server not responding
+      perror("ERROR: the server socket is closed (server might be down)");
       exit(0);
     }
   }
