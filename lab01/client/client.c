@@ -96,14 +96,13 @@ void make_request(int socket) {
 }
 
 void receive_file(int socket, char *buffer, char *file_name) {
-  FILE *output = fopen(file_name, "w");
+  FILE *output = fopen(file_name, "w"); // create file with same name to write
   int msg_len;
 
-  while (1) {
-    msg_len = read(socket, buffer, BUFFLEN);
-    buffer[msg_len] = '\0';
-    if (buffer[0] != '\0') fputs(buffer, output);
-    else break;
+  while (buffer[0] != '\0') { // iterate through packets until EOF
+    msg_len = read(socket, buffer, BUFFLEN);  // read buffer
+    buffer[msg_len] = '\0';                   // add eof for string handling
+    fputs(buffer, output);                    // write buffer
   }
 
   printf("file received\n");

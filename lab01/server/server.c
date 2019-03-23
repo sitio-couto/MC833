@@ -123,7 +123,7 @@ void request_options(int socket) {
     // Test which request the client aksed for
     switch (strtok(buffer, " ")[0]) {
       case '#':
-        printf("sending file\n");
+        printf("sending file...\n");
         send_file(socket, buffer, strtok(NULL, " "));
         break;
       default:
@@ -182,16 +182,17 @@ void get_profile(char* email) {
   return;
 }
 
+// This function splits files from data and send the to the client
 void send_file(int socket, char *buffer, char *file_name) {
-  FILE *input;
-  char path[BUFFLEN];
+  FILE *input;        // File to be sent
+  char path[BUFFLEN]; // buffer to place the absolute path
 
   get_path(path, file_name);
   input = fopen(path, "r");
 
-  while (fgets(buffer, BUFFLEN, input))
-    write(socket, buffer, BUFFLEN);
-  write(socket, "\0", 1);
+  while (fgets(buffer, BUFFLEN, input)) // reads file filling buffer
+    write(socket, buffer, BUFFLEN);     // sends filled up buffer to client
+  write(socket, "\0", 1);               // notify client that the file has ended
 
   printf("file sent\n");
   fclose(input);
