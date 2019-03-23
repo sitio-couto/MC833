@@ -110,14 +110,14 @@ void request_options(int socket) {
   int msg_len; // TODO: set same message size for client and server
 
   // notify connections is set
-  write(socket, "connection is set...", 20);
+  write_d(socket, "connection is set...", 20);
 
   // get_profile("maria@unicamp.br");
 
   while(1){
     // Await new message from client
     printf("server awaiting new message...\n");
-    msg_len = read(socket, buffer, BUFFLEN);
+    msg_len = read_d(socket, buffer, BUFFLEN);
     buffer[msg_len] = '\0';   // Adjust EOF to the received msg size
 
     // Test which request the client aksed for
@@ -191,8 +191,8 @@ void send_file(int socket, char *buffer, char *file_name) {
   input = fopen(path, "r");
 
   while (fgets(buffer, BUFFLEN, input)) // reads file filling buffer
-    write(socket, buffer, BUFFLEN);     // sends filled up buffer to client
-  write(socket, "\0", 1);               // notify client that the file has ended
+    write_d(socket, buffer, BUFFLEN);     // sends filled up buffer to client
+  write_d(socket, "\0", 1);               // notify client that the file has ended
 
   printf("file sent\n");
   fclose(input);

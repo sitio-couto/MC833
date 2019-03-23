@@ -12,3 +12,33 @@
 #define BUFFLEN 256 // Length of the message buffer
 #define PORT "3490" // the port client will be connecting to
 #define MAXDATASIZE 100 // max number of bytes we can get at once
+
+// Debuggin wrapper for send
+int write_d(int socket, char *message, int length){
+  int r_val;
+
+  if ((r_val = send(socket, message, length, 0)) == -1) {
+    perror("ERROR: send");
+    exit(1);
+  } else if (r_val == 0) {
+    printf("ERROR: pairing socket is closed\n");
+    exit(1);
+  }
+
+  return r_val;
+}
+
+// Debuggin wrapper for recv
+int read_d(int socket, char *message, int length) {
+  int r_val;
+
+  if ((r_val = recv(socket, message, length, 0)) == -1) {
+    perror("ERROR: send");
+    exit(1);
+  } else if (r_val == 0) { // if client not responding
+    printf("ERROR: pairing socket is closed\n");
+    exit(1);
+  }
+
+  return r_val;
+}

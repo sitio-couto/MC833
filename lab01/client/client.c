@@ -69,7 +69,7 @@ void make_request(int socket) {
   int msg_len;
 
   // receive server connection set confirmation
-  msg_len = read(socket, buffer, BUFFLEN);
+  msg_len = read_d(socket, buffer, BUFFLEN);
   buffer[msg_len] = '\0';
   printf("%s\n", buffer);
 
@@ -78,7 +78,7 @@ void make_request(int socket) {
     // Scan and send user request
     printf("awaiting input:\n");
     scanf(" %[^\n]", buffer);
-    write(socket, buffer, strlen(buffer));
+    write_d(socket, buffer, strlen(buffer));
 
     // Await server commands
     switch (strtok(buffer, " ")[0]) {
@@ -100,7 +100,7 @@ void receive_file(int socket, char *buffer, char *file_name) {
   int msg_len;
 
   while (buffer[0] != '\0') { // iterate through packets until EOF
-    msg_len = read(socket, buffer, BUFFLEN);  // read buffer
+    msg_len = read_d(socket, buffer, BUFFLEN);  // read buffer
     buffer[msg_len] = '\0';                   // add eof for string handling
     fputs(buffer, output);                    // write buffer
   }
