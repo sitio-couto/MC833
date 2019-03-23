@@ -14,10 +14,13 @@
 #define MAXDATASIZE 100 // max number of bytes we can get at once
 
 // Debuggin wrapper for send
-int write_d(int socket, char *message, int length){
-  int r_val;
+int write_d(int socket, char *buffer, int length){
+  int i, r_val;
 
-  if ((r_val = send(socket, message, length, 0)) == -1) {
+  // Fiil message to standard size of buffer
+  for (i = length; i < BUFFLEN; ++i) buffer[i] = '\0';
+
+  if ((r_val = send(socket, buffer, BUFFLEN, 0)) == -1) {
     perror("ERROR: send");
     exit(1);
   } else if (r_val == 0) {
@@ -29,10 +32,10 @@ int write_d(int socket, char *message, int length){
 }
 
 // Debuggin wrapper for recv
-int read_d(int socket, char *message, int length) {
+int read_d(int socket, char *buffer) {
   int r_val;
 
-  if ((r_val = recv(socket, message, length, 0)) == -1) {
+  if ((r_val = recv(socket, buffer, BUFFLEN, 0)) == -1) {
     perror("ERROR: send");
     exit(1);
   } else if (r_val == 0) { // if client not responding

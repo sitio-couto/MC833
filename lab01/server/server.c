@@ -59,14 +59,14 @@ void request_options(int socket) {
   int msg_len; // TODO: set same message size for client and server
 
   // notify connections is set
-  write_d(socket, "connection is set...", 20);
-
+  strcpy(buffer, "connection is set...");
+  write(socket, buffer, strlen(buffer));
   // get_profile("maria@unicamp.br");
 
   while(1){
     // Await new message from client
     printf("server awaiting new message...\n");
-    msg_len = read_d(socket, buffer, BUFFLEN);
+    msg_len = read_d(socket, buffer);
     buffer[msg_len] = '\0';   // Adjust EOF to the received msg size
 
     // Test which request the client aksed for
@@ -134,14 +134,24 @@ void get_profile(char* email) {
 // This function splits files from data and send the to the client
 void send_file(int socket, char *buffer, char *file_name) {
   FILE *input;        // File to be sent
-  char path[BUFFLEN]; // buffer to place the absolute path
+  char c, path[BUFFLEN]; // buffer to place the absolute path
+  long int i = 0, size;
 
   get_path(path, file_name);
-  input = fopen(path, "r");
+  input = fopen(path, "rb");
 
-  while (fgets(buffer, BUFFLEN, input)) // reads file filling buffer
-    write_d(socket, buffer, BUFFLEN);     // sends filled up buffer to client
-  write_d(socket, "\0", 1);               // notify client that the file has ended
+  fseek(input, 0, SEEK_END);
+  size = ftell(input);
+  fseek(input, 0, SEEK_SET);
+
+  sprintf(buffer, "%ld", size);              // Cast size to string
+  write_d(socket, buffer, strlen(buffer));  // Send file size to client
+
+  while (i < size) { // reads file filling buffer
+    buffer[(i++)%BUFFLEN] = fgetc(input);
+    if (i%BUFFLEN == 0 || i == size)
+      write_d(socket, buffer, BUFFLEN);  // sends filled up buffer to client
+  }
 
   printf("file sent\n");
   fclose(input);
