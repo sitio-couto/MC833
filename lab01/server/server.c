@@ -131,26 +131,27 @@ void get_profile(char* email) {
   return;
 }
 
-// This function splits files from data and send the to the client
+// This function splits files from /data/ and send then to the client
 void send_file(int socket, char *buffer, char *file_name) {
-  FILE *input;        // File to be sent
-  char c, path[BUFFLEN]; // buffer to place the absolute path
-  long int i = 0, size;
+  FILE *input;           // File to be sent
+  char path[BUFFLEN];    // buffer to place the absolute path
+  long int i = 0, size;  // Size of the file to be sent
 
-  get_path(path, file_name);
+  get_path(path, file_name);  // Get absolut path
   input = fopen(path, "rb");
 
+  // Get size (amount of char in the file)
   fseek(input, 0, SEEK_END);
   size = ftell(input);
   fseek(input, 0, SEEK_SET);
 
-  sprintf(buffer, "%ld", size);              // Cast size to string
+  sprintf(buffer, "%ld", size);             // Cast size to string
   write_d(socket, buffer, strlen(buffer));  // Send file size to client
 
-  while (i < size) { // reads file filling buffer
-    buffer[(i++)%BUFFLEN] = fgetc(input);
-    if (i%BUFFLEN == 0 || i == size)
-      write_d(socket, buffer, BUFFLEN);  // sends filled up buffer to client
+  while (i < size) { // reads char by char filling buffer until eof
+    buffer[(i++)%BUFFLEN] = fgetc(input); // Add char to buffer, then incremente i
+    if (i%BUFFLEN == 0 || i == size)      // i buffer full or EOF send data
+      write_d(socket, buffer, BUFFLEN);   // sends entire buffer to avoid border issues
   }
 
   printf("file sent\n");
@@ -158,19 +159,19 @@ void send_file(int socket, char *buffer, char *file_name) {
   return;
 }
 
-// Gets the absolute path of the file
+// Gets the absolute path of the file to be sent
 int get_path(char *pBuf, char *file_name) {
   char szTmp[32];
   int bytes;
 
-  sprintf(szTmp, "/proc/%d/exe", getpid());
-  bytes = readlink(szTmp, pBuf, BUFFLEN);
+  sprintf(szTmp, "/proc/%d/exe", getpid()); // get this process origin file path
+  bytes = readlink(szTmp, pBuf, BUFFLEN);   // save path
 
-  for (bytes ; pBuf[bytes] != '/'; --bytes);
-  pBuf[bytes] = '\0';
+  for (bytes ; pBuf[bytes] != '/'; --bytes); // removes the process file name
+  pBuf[bytes] = '\0'; // add eof
 
-  strcat(pBuf, "/data/");
-  strcat(pBuf, file_name);
+  strcat(pBuf, "/data/");   // add /data to path
+  strcat(pBuf, file_name);  // add the file name to the path
 
-  return bytes;
+  return strlen(pBuf); // return path size
 }
