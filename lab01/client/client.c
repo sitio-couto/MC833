@@ -1,5 +1,6 @@
 #include "client.h"
 
+void receive_file(int, char*, char*);
 void make_request(int);
 
 // get sockaddr, IPv4 or IPv6:
@@ -61,42 +62,38 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-  // if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-  //     perror("recv");
-  //     exit(1);
-// }
+////////////////////////////////////////////////////////////////////////////////
 
 void make_request(int socket) {
-  char buffer[256];
-  int msg_len, buff_len = 256;
+  char buffer[BUFFLEN];
+  int msg_len;
 
   // receive server connection set confirmation
-  if ((msg_len = recv(socket, buffer, buff_len, 0)) == -1) {
-    perror("ERROR: client failed to receive connection comfirmation");
-    exit(1);
-  } else {
-    buffer[msg_len] = '\0';
-    printf("%s\n", buffer);
-  }
+  msg_len = read(socket, buffer, BUFFLEN);
+  buffer[msg_len] = '\0';
+  printf("%s\n", buffer);
+
 
   while(1) {
     // Scan and send user request
     printf("awaiting input:\n");
     scanf(" %[^\n]", buffer);
-    if (send(socket, buffer, strlen(buffer), 0) == -1) {
-      perror("ERROR: client failed to send messsage");
-      exit(1);
+    write(socket, buffer, strlen(buffer));
+
+    // Await server commands
+    switch (strtok(buffer, " ")[0]) {
+      case '#':
+        receive_file(socket, buffer, strtok(NULL, " "));
+        break;
+      default:
+        printf("invalid option\n");
     }
 
-    // Wait for server reception confirmation
-    if((msg_len = recv(socket, buffer, buff_len, 0)) == -1){
-      perror("ERROR: client failed to receive message");
-      exit(1);
-    } else if (msg_len == 0) { // if server not responding
-      printf("ERROR: the server socket is closed (server might be down)\n");
-      break;
-    }
   }
 
   return;
+}
+
+void receive_file(int socket, char *buffer, char *file_name) {
+
 }

@@ -1,7 +1,7 @@
 #include "server.h"
 void request_options(int);
 void get_profile(char*);
-
+void send_file(int, char*, char*);
 
 void sigchld_handler(int s)
 {
@@ -105,39 +105,28 @@ int main(void){
 ////////////////////////////////////////////////////////////////////////////////
 
 void request_options(int socket) {
-  char buffer[256];
-  int msg_len, buff_len = 256; // TODO: set same message size for client and server
+  char buffer[BUFFLEN];
+  int msg_len; // TODO: set same message size for client and server
 
   // notify connections is set
-  if (send(socket, "connection is set...", 20, 0) == -1) {
-    perror("ERROR: server failed to send connection comfirmation");
-    exit(0);
-  }
+  write(socket, "connection is set...", 20);
 
-  get_profile("maria@unicamp.br");
+  // get_profile("maria@unicamp.br");
 
   while(1){
     // Await new message from client
     printf("server awaiting new message...\n");
-    if ((msg_len = recv(socket, buffer, buff_len, 0)) == -1) {
-      perror("ERROR: server failed to receive message");
-      exit(1);
-    } else if (msg_len == 0) { // if client not responding
-      printf("ERROR: the client socket is colosed (client might be down)\n");
-      break;
+    msg_len = read(socket, buffer, BUFFLEN);
+    buffer[msg_len] = '\0';   // Adjust EOF to the received msg size
+
+    // Test which request the client aksed for
+    switch (strtok(buffer, " ")[0]) {
+      case '#':
+        send_file(socket, buffer, strtok(NULL, " "));
+        break;
+      default:
+        printf("invalid option\n");
     }
-
-    // Adjust EOF to the received msg size
-    buffer[msg_len] = '\0';
-
-    // notify client that the message was received
-    printf("client: %s\n", buffer);
-    if (send(socket, "message received", 17, 0) == -1) {
-      perror("ERROR: server failed to send comfirmation");
-      exit(1);
-    }
-
-    // TODO Execute message request
 
     // End connection if requested by client
     if (!strcmp(buffer, "exit")) break;
@@ -189,4 +178,8 @@ void get_profile(char* email) {
   }
 
   return;
+}
+
+void send_file(int socket, char *buffer, char *file_name) {
+
 }
