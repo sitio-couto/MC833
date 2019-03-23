@@ -95,5 +95,17 @@ void make_request(int socket) {
 }
 
 void receive_file(int socket, char *buffer, char *file_name) {
+  FILE *output = fopen(file_name, "w");
+  int msg_len;
 
+  while (1) {
+    msg_len = read(socket, buffer, BUFFLEN);
+    buffer[msg_len] = '\0';
+    if (buffer[0] != '\0') fputs(buffer, output);
+    else break;
+  }
+
+  printf("file received\n");
+  fclose(output);
+  return;
 }

@@ -2,6 +2,7 @@
 void request_options(int);
 void get_profile(char*);
 void send_file(int, char*, char*);
+int get_path(char*, char*);
 
 void sigchld_handler(int s)
 {
@@ -181,5 +182,34 @@ void get_profile(char* email) {
 }
 
 void send_file(int socket, char *buffer, char *file_name) {
+  FILE *input;
+  char path[BUFFLEN];
 
+  get_path(path, file_name);
+  input = fopen(path, "r");
+
+  while (fgets(buffer, BUFFLEN, input))
+    write(socket, buffer, BUFFLEN);
+  write(socket, "\0", 1);
+
+  printf("file sent\n");
+  fclose(input);
+  return;
+}
+
+// Gets the absolute path of the file
+int get_path(char *pBuf, char *file_name) {
+  char szTmp[32];
+  int bytes;
+
+  sprintf(szTmp, "/proc/%d/exe", getpid());
+  bytes = readlink(szTmp, pBuf, BUFFLEN);
+
+  for (bytes ; pBuf[bytes] != '/'; --bytes);
+  pBuf[bytes] = '\0';
+
+  strcat(pBuf, "/data/");
+  strcat(pBuf, file_name);
+
+  return bytes;
 }
