@@ -83,6 +83,7 @@ void make_request(int socket) {
     // Await server commands
     switch (strtok(buffer, " ")[0]) {
       case '#':
+        printf("awaiting file...\n");
         receive_file(socket, buffer, strtok(NULL, " "));
         break;
       default:

@@ -123,6 +123,7 @@ void request_options(int socket) {
     // Test which request the client aksed for
     switch (strtok(buffer, " ")[0]) {
       case '#':
+        printf("sending file\n");
         send_file(socket, buffer, strtok(NULL, " "));
         break;
       default:
