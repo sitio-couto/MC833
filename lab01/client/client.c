@@ -75,6 +75,11 @@ void make_request(int socket) {
         printf("awaiting file...\n");
         receive_file(socket, buffer, strtok(NULL, " "));
         break;
+      case '6':
+        printf("awating profile...\n");
+        receive_data(socket, buffer);
+        printf("profile received\n");
+        break;
       default:
         printf("invalid option\n");
     }

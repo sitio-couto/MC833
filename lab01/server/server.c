@@ -1,6 +1,6 @@
 #include "server.h"
 void request_options(int);
-void get_profile(char*);
+void get_profile(int, char*, char*);
 void send_file(int, char*, char*);
 int get_path(char*);
 char* get_name(char*);
@@ -58,7 +58,6 @@ int main(void){
 
 void request_options(int socket) {
   char buffer[BUFFLEN];
-  int msg_len; // TODO: set same message size for client and server
 
   // notify connections is set
   strcpy(buffer, "connection is set...");
@@ -67,14 +66,18 @@ void request_options(int socket) {
   while(1){
     // Await new message from client
     printf("server awaiting new message...\n");
-    msg_len = read_d(socket, buffer);
-    buffer[msg_len] = '\0';   // Adjust EOF to the received msg size
+    read_d(socket, buffer);
 
     // Test which request the client aksed for
     switch (strtok(buffer, " ")[0]) {
       case '#':
         printf("sending file...\n");
         send_file(socket, buffer, strtok(NULL, " "));
+        break;
+      case '6': // Get full profile
+        printf("retrieving profile...\n");
+        get_profile(socket, buffer, strtok(NULL, ""));
+        printf("profile sent.\n");
         break;
       default:
         printf("invalid option\n");
@@ -109,27 +112,31 @@ void get_experience(char* email) {
   return;
 }
 
-void get_profile(char* email) {
+void get_profile(int socket, char* buffer, char *buff_email) {
 
-  char c, file[80];
+  char c, email[BUFFLEN];
   FILE *fptr;
 
-  strcpy(file, "server/data/");
-  strcat(file, email);
-  strcat(file, ".txt");
+  strcpy(email, buff_email); // Copy email key from buffer
+  get_path(buffer);
+  strcat(strcat(strcat(buffer, "data/"), email), ".txt");
 
-  if ((fptr = fopen(file,"r")) == NULL){
-      printf("Error! opening file: %s", file);
+  if ((fptr = fopen(buffer,"r")) == NULL){
+      printf("Error! opening file: %s\n", buffer);
       // Program exits if the file pointer returns NULL.
       exit(1);
   }
 
-  // Read contents from file
-  c = fgetc(fptr);
-  while (c != EOF){
-    printf("%c", c);
-    c = fgetc(fptr);
-  }
+  // Send contents from file
+  while (fgets(buffer, BUFFLEN, fptr))
+    write_d(socket, buffer, strlen(buffer));
+  write_d(socket, buffer, 0); // Send empty buffer to sinal eof
+
+
+  // while (c != EOF){
+  //   printf("%c", c);
+  //   c = fgetc(fptr);
+  // }
 
   return;
 }

@@ -11,17 +11,17 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#define BUFFLEN 256  // Length of the message buffer
-#define PORT 3490    // the port users will be connecting to
-#define BACKLOG 10   // how many pending connections queue will hold
+#define BUFFLEN 256     // Length of the message buffer
+#define PORT 3490       // the port users will be connecting to
+#define BACKLOG 10      // how many pending connections queue will hold
 #define MAXDATASIZE 100 // max number of bytes we can send at once
 
 // Debuggin wrapper for send
 int write_d(int socket, char *buffer, int length){
   int i, r_val;
 
-  // Fiil message to standard size of buffer
-  // for (i = length; i < BUFFLEN; ++i) buffer[i] = '\0';
+  // Fill message to standard size of buffer
+  for (i = length; i < BUFFLEN; ++i) buffer[i] = '\0';
 
   if ((r_val = send(socket, buffer, BUFFLEN, 0)) == -1) {
     perror("ERROR: send");
