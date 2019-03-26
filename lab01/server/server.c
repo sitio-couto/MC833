@@ -2,7 +2,7 @@
 void request_options(int);
 void get_profile(int, char*, char*);
 void send_file(int, char*, char*);
-int get_path(char*);
+char* get_path(char*);
 char* get_name(char*);
 void send_data(int, char*, int);
 void receive_file(int, char*, char*);
@@ -76,7 +76,7 @@ void request_options(int socket) {
         break;
       case '6': // Get full profile
         printf("retrieving profile...\n");
-        get_profile(socket, buffer, strtok(NULL, ""));
+        get_profile(socket, buffer, strtok(NULL, " "));
         printf("profile sent.\n");
         break;
       default:
@@ -118,8 +118,7 @@ void get_profile(int socket, char* buffer, char *buff_email) {
   FILE *fptr;
 
   strcpy(email, buff_email); // Copy email key from buffer
-  get_path(buffer);
-  strcat(strcat(strcat(buffer, "data/"), email), ".txt");
+  strcat(strcat(strcat(get_path(buffer), "data/"), email), ".txt");
 
   if ((fptr = fopen(buffer,"r")) == NULL){
       printf("Error! opening file: %s\n", buffer);
@@ -196,8 +195,8 @@ void send_file(int socket, char *buffer, char *path) {
 }
 
 // Gets the full path of the file to be sent
-int get_path(char *path) {
-  char szTmp[32], full_path[200];
+char* get_path(char *full_path) {
+  char szTmp[32];
   int bytes;
 
   sprintf(szTmp, "/proc/%d/exe", getpid()); // get this process origin file path
@@ -206,9 +205,7 @@ int get_path(char *path) {
   for (bytes ; full_path[bytes] != '/'; --bytes); // removes the process name
   full_path[bytes+1] = '\0'; // add eof
 
-  strcat(full_path, path);  // concatenate the full path with the local path
-
-  return strlen(strcpy(path, full_path)); // return path size and full path
+  return full_path; // return path size and full path
 }
 
 // This was create solely for the purpose of testing the # option

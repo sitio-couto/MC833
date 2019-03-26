@@ -5,7 +5,7 @@ void make_request(int);
 char* get_name(char*);
 void send_file(int, char*, char*);
 void receive_data(int, char*);
-int get_path(char*);
+char* get_path(char*);
 
 
 int main(int argc, char *argv[])
@@ -76,9 +76,9 @@ void make_request(int socket) {
         receive_file(socket, buffer, strtok(NULL, " "));
         break;
       case '6':
-        printf("awating profile...\n");
+        printf("awating profile...\n\n");
         receive_data(socket, buffer);
-        printf("profile received\n");
+        printf("\nprofile received\n");
         break;
       default:
         printf("invalid option\n");
@@ -97,7 +97,7 @@ void receive_data(int socket, char *buffer) {
   buffer[0] = 'x';
   while (buffer[0] != '\0') {  // print all messages
       read_d(socket, buffer);
-      printf("%s\n", buffer);
+      printf("%s", buffer);
   }
 
   return;
@@ -158,8 +158,8 @@ void send_file(int socket, char *buffer, char *path) {
 }
 
 // Gets the full path of the file to be sent
-int get_path(char *path) {
-  char szTmp[32], full_path[BUFFLEN];
+char* get_path(char *full_path) {
+  char szTmp[32];
   int bytes;
 
   sprintf(szTmp, "/proc/%d/exe", getpid()); // get this process origin file path
@@ -168,9 +168,7 @@ int get_path(char *path) {
   for (bytes ; full_path[bytes] != '/'; --bytes); // removes the process name
   full_path[bytes+1] = '\0'; // add eof
 
-  strcat(full_path, path);  // concatenate the full path with the local path
-
-  return strlen(strcpy(path, full_path)); // return path size and full path
+  return full_path; // return path size and full path
 }
 
 // This was create solely for the purpose of testing the # option
