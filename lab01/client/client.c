@@ -3,6 +3,10 @@
 void receive_file(int, char*, char*);
 void make_request(int);
 char* get_name(char*);
+void send_file(int, char*, char*);
+void receive_data(int, char*);
+int get_path(char*);
+
 
 int main(int argc, char *argv[])
 {
@@ -80,19 +84,37 @@ void make_request(int socket) {
   return;
 }
 
-void receive_file(int socket, char *buffer, char *file_name) {
+// MESSAGE FUNCTIONS ///////////////////////////////////////////////////////////
+
+// Receive N amount os messages to be printed in the terminal
+void receive_data(int socket, char *buffer) {
+
+  buffer[0] = 'x';
+  while (buffer[0] != '\0') {  // print all messages
+      read_d(socket, buffer);
+      printf("%s\n", buffer);
+  }
+
+  return;
+}
+
+// FILE TRANSFER FUNCTIONS /////////////////////////////////////////////////////
+
+// This function receives a file from the socket
+void receive_file(int socket, char *buffer, char *path) {
   FILE *output;
   int msg_len;
   long int i = 0, base, size;
 
-  output = fopen(get_name(file_name), "wb"); // create file with same name to write
-  printf("receving file \"%s\"...\n", get_name(file_name));
+  get_path(path);             // Local path is now a full path
+  output = fopen(path, "wb"); // create/erase file to write
+  printf("receving file \"%s\"...\n", get_name(path));
 
   read_d(socket, buffer);           // Read size
   size = strtol(buffer, NULL, 10);  // Cast size to long int
 
   while (i < size) {
-    msg_len = read_d(socket, buffer);        // Read a full buffer.
+    read_d(socket, buffer); // Read a full buffer.
     for (base = i; (i < base + BUFFLEN) && (i < size); ++i) // Write elements
       fputc(buffer[i%BUFFLEN], output);
   }
@@ -102,11 +124,56 @@ void receive_file(int socket, char *buffer, char *file_name) {
   return;
 }
 
-char* get_name(char *file_name) {
+// This function splits files and send it in messages
+void send_file(int socket, char *buffer, char *path) {
+  FILE *input;           // File to be sent
+  long int i = 0, size;  // Size of the file to be sent
+
+  get_path(path);        // get full path
+  input = fopen(path, "rb");
+  printf("sending file \"%s\"\n", get_name(path));
+
+  // Get size (amount of char in the file)
+  fseek(input, 0, SEEK_END);
+  size = ftell(input);
+  fseek(input, 0, SEEK_SET);
+
+  sprintf(buffer, "%ld", size);             // Cast size to string
+  write_d(socket, buffer, strlen(buffer));  // Send file size
+
+  while (i < size) { // reads char by char filling n saving buffers until eof
+    buffer[(i++)%BUFFLEN] = fgetc(input); // Add char to buffer, then incremente i
+    if (i%BUFFLEN == 0 || i == size)      // i buffer full or EOF send data
+      write_d(socket, buffer, BUFFLEN);   // sends entire buffer to avoid border issues
+  }
+
+  printf("file sent\n");
+  fclose(input);
+  return;
+}
+
+// Gets the full path of the file to be sent
+int get_path(char *path) {
+  char szTmp[32], full_path[BUFFLEN];
+  int bytes;
+
+  sprintf(szTmp, "/proc/%d/exe", getpid()); // get this process origin file path
+  bytes = readlink(szTmp, full_path, BUFFLEN);   // save path
+
+  for (bytes ; full_path[bytes] != '/'; --bytes); // removes the process name
+  full_path[bytes+1] = '\0'; // add eof
+
+  strcat(full_path, path);  // concatenate the full path with the local path
+
+  return strlen(strcpy(path, full_path)); // return path size and full path
+}
+
+// This was create solely for the purpose of testing the # option
+char* get_name(char *path) {
   int i;
 
-  for(i = strlen(file_name); i >= 0; --i)
-    if (file_name[i] == '/') return &(file_name[i+1]);
+  for(i = strlen(path); i >= 0; --i)
+    if (path[i] == '/') return &(path[i+1]);
 
-  return file_name;
+  return path;
 }
