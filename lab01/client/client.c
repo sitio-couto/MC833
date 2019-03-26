@@ -77,6 +77,7 @@ void make_request(int socket) {
         break;
       case '6':
         printf("awating profile...\n\n");
+        receive_file(socket, buffer, strtok(NULL, " "));
         receive_data(socket, buffer);
         printf("\nprofile received\n");
         break;
@@ -111,9 +112,8 @@ void receive_file(int socket, char *buffer, char *path) {
   int msg_len;
   long int i = 0, base, size;
 
-  get_path(path);             // Local path is now a full path
   output = fopen(path, "wb"); // create/erase file to write
-  printf("receving file \"%s\"...\n", get_name(path));
+  printf("receving files \"%s\"...\n", get_name(path));
 
   read_d(socket, buffer);           // Read size
   size = strtol(buffer, NULL, 10);  // Cast size to long int
@@ -124,7 +124,7 @@ void receive_file(int socket, char *buffer, char *path) {
       fputc(buffer[i%BUFFLEN], output);
   }
 
-  printf("file received\n");
+  printf("file received\n\n");
   fclose(output);
   return;
 }
@@ -134,7 +134,6 @@ void send_file(int socket, char *buffer, char *path) {
   FILE *input;           // File to be sent
   long int i = 0, size;  // Size of the file to be sent
 
-  get_path(path);        // get full path
   input = fopen(path, "rb");
   printf("sending file \"%s\"\n", get_name(path));
 

@@ -118,24 +118,25 @@ void get_profile(int socket, char* buffer, char *buff_email) {
   FILE *fptr;
 
   strcpy(email, buff_email); // Copy email key from buffer
+
+  // Gets image form server
+
+  strcat(strcat(strcat(get_path(buffer), "data/images/"), email), ".jpg");
+  send_file(socket, buffer, buffer);
+
+  // Gets the values in the txt file
+
   strcat(strcat(strcat(get_path(buffer), "data/"), email), ".txt");
 
   if ((fptr = fopen(buffer,"r")) == NULL){
       printf("Error! opening file: %s\n", buffer);
-      // Program exits if the file pointer returns NULL.
-      exit(1);
+      exit(1); // Exits if failed to open file
   }
 
   // Send contents from file
   while (fgets(buffer, BUFFLEN, fptr))
     write_d(socket, buffer, strlen(buffer));
   write_d(socket, buffer, 0); // Send empty buffer to sinal eof
-
-
-  // while (c != EOF){
-  //   printf("%c", c);
-  //   c = fgetc(fptr);
-  // }
 
   return;
 }
@@ -167,13 +168,12 @@ void receive_file(int socket, char *buffer, char *path) {
 }
 
 // This function splits files from /data/ and send then to the client
-void send_file(int socket, char *buffer, char *path) {
+void send_file(int socket, char *buffer, char *full_path) {
   FILE *input;           // File to be sent
   long int i = 0, size;  // Size of the file to be sent
 
-  get_path(path);  // Get full path
-  input = fopen(path, "rb");
-  printf("sending file \"%s\"\n", get_name(path));
+  input = fopen(full_path, "rb");
+  printf("sending file \"%s\"\n", get_name(full_path));
 
   // Get size (amount of char in the file)
   fseek(input, 0, SEEK_END);
