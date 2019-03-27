@@ -1,7 +1,8 @@
-João
-Santos
-Campinas
-Engenharia de Computação
-Criptografia, Servidores
-Trabalhei com Servidores por 2 anos na Empresa Y
-Estágio de 1 ano na Empresa X, onde trabalhei com Criptografia
+E-mail: joao@unicamp.br
+Nome: João
+Sobrenome: Santos
+Residência: Campinas
+Formação acadêmica: Engenharia de Computação
+Habilidades: Criptografia, Servidores
+Experiência: (1)Trabalhei com Servidores por 2 anos na Empresa Y
+             (2)Estágio de 1 ano na Empresa X, onde trabalhei com Criptografia
