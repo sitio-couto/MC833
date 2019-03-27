@@ -109,11 +109,12 @@ void receive_data(int socket, char *buffer) {
 // This function receives a file from the socket
 void receive_file(int socket, char *buffer, char *path) {
   FILE *output;
-  int msg_len;
   long int i = 0, base, size;
+  char file_name[BUFFLEN];
 
-  output = fopen(path, "wb"); // create/erase file to write
-  printf("receving files \"%s\"...\n", get_name(path));
+  strcat(strcat(get_path(buffer), "data/"), strcpy(file_name, path));
+  printf("receving files \"%s\"...\n", buffer);
+  output = fopen(buffer, "wb"); // create/erase file to write
 
   read_d(socket, buffer);           // Read size
   size = strtol(buffer, NULL, 10);  // Cast size to long int
@@ -157,17 +158,17 @@ void send_file(int socket, char *buffer, char *path) {
 }
 
 // Gets the full path of the file to be sent
-char* get_path(char *full_path) {
+char* get_path(char *path) {
   char szTmp[32];
   int bytes;
 
   sprintf(szTmp, "/proc/%d/exe", getpid()); // get this process origin file path
-  bytes = readlink(szTmp, full_path, BUFFLEN);   // save path
+  bytes = readlink(szTmp, path, BUFFLEN);   // save full path
 
-  for (bytes ; full_path[bytes] != '/'; --bytes); // removes the process name
-  full_path[bytes+1] = '\0'; // add eof
+  for (bytes ; path[bytes] != '/'; --bytes); // removes the process name
+  path[bytes+1] = '\0'; // add eof
 
-  return full_path; // return path size and full path
+  return path; // return path size and full path
 }
 
 // This was create solely for the purpose of testing the # option

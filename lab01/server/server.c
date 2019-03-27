@@ -195,17 +195,17 @@ void send_file(int socket, char *buffer, char *full_path) {
 }
 
 // Gets the full path of the file to be sent
-char* get_path(char *full_path) {
+char* get_path(char *path) {
   char szTmp[32];
   int bytes;
 
   sprintf(szTmp, "/proc/%d/exe", getpid()); // get this process origin file path
-  bytes = readlink(szTmp, full_path, BUFFLEN);   // save path
+  bytes = readlink(szTmp, path, BUFFLEN);   // save path
 
-  for (bytes ; full_path[bytes] != '/'; --bytes); // removes the process name
-  full_path[bytes+1] = '\0'; // add eof
+  for (bytes ; path[bytes] != '/'; --bytes); // removes the process name
+  path[bytes+1] = '\0'; // add eof
 
-  return full_path; // return path size and full path
+  return path; // return path size and full path
 }
 
 // This was create solely for the purpose of testing the # option
