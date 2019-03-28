@@ -6,6 +6,7 @@ char* get_path(char*);
 char* get_name(char*);
 void send_data(int, char*, int);
 void receive_file(int, char*, char*);
+void get_all_profiles(int, char*);
 
 int main(void){
   int sockfd, new_fd, pid;  // listen on sock_fd, new connection on new_fd
@@ -74,6 +75,11 @@ void request_options(int socket) {
         printf("sending file...\n");
         send_file(socket, buffer, strtok(NULL, " "));
         break;
+      case '5':
+        printf("sending all profiles...\n");
+        get_all_profiles(socket, buffer);
+        printf("all profiles sent\n");
+        break;
       case '6': // Get full profile
         printf("retrieving profile...\n");
         get_profile(socket, buffer, strtok(NULL, " "));
@@ -108,6 +114,23 @@ void add_experience(char* email, char* experience) {
 }
 
 void get_experience(char* email) {
+
+  return;
+}
+
+void get_all_profiles(int socket, char *buffer) {
+  FILE *index;
+
+  strcat(get_path(buffer), "data/index.txt");
+  index = fopen(buffer, "r");
+
+  while (fgets(buffer, BUFFLEN, index)) {
+    buffer[strlen(buffer)-1] = '\0';
+    printf("sending profile: %s\n", buffer);
+    write_d(socket, buffer, strlen(buffer)); // send profile email
+    get_profile(socket, buffer, buffer);     // send profile
+  }
+  write_d(socket, buffer, 0); // Send empty buffer to signal eof
 
   return;
 }
