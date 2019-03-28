@@ -1,8 +1,10 @@
-E-mail: joao@unicamp.br
 Nome: João
 Sobrenome: Santos
 Residência: Campinas
 Formação acadêmica: Engenharia de Computação
 Habilidades: Criptografia, Servidores
-Experiência: (1)Trabalhei com Servidores por 2 anos na Empresa Y
-             (2)Estágio de 1 ano na Empresa X, onde trabalhei com Criptografia
+Experiência:
+	(1)adding exp
+	(3)adding yet another exp
+	(6)this guys cv is even bigger than his dick
+	(4)<- check if count is fixed

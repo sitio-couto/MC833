@@ -8,6 +8,7 @@ void send_data(int, char*, int);
 void receive_file(int, char*, char*);
 void get_all_profiles(int, char*);
 void get_experience(int, char*, char*);
+void add_experience(int, char*, char*);
 
 int main(void){
   int sockfd, new_fd, pid;  // listen on sock_fd, new connection on new_fd
@@ -76,6 +77,10 @@ void request_options(int socket) {
         printf("sending file...\n");
         send_file(socket, buffer, strtok(NULL, " "));
         break;
+      case '3':
+        printf("adding experience...\n");
+        add_experience(socket, buffer, strtok(NULL, " "));
+        break;
       case '4':
         printf("retrieving experiences...\n");
         get_experience(socket, buffer, strtok(NULL, " "));
@@ -114,7 +119,23 @@ void habilities_by_city(char* city) {
   return;
 }
 
-void add_experience(char* email, char* experience) {
+void add_experience(int socket, char* buffer, char* email_b) {
+  FILE *profile;
+  char email[BUFFLEN], exp[BUFFLEN];
+  int i=0;
+
+  strcpy(email, email_b);
+  strcpy(exp, &email_b[strlen(email_b)+1]);
+  strcat(strcat(strcat(get_path(buffer), "data/"), email), ".txt");
+  profile = fopen(buffer, "a+");
+  printf("adding \"%s\" to profile \"%s\"\n", exp, email);
+
+  while(strcmp(fgets(buffer, 256, profile), "Experiência:\n")){};
+  do { ++i; } while(fgets(buffer, 256, profile));
+  fprintf(profile, "\t(%d)%s\n", i, exp);
+  write_d(socket, buffer, 0);
+
+  fclose(profile);
 
   return;
 }

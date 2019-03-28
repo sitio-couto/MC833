@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
 
 void make_request(int socket) {
   char buffer[BUFFLEN];
+  int i;
 
   // receive server connection set confirmation
   read_d(socket, buffer);
@@ -74,6 +75,11 @@ void make_request(int socket) {
       case '#':
         printf("awaiting file...\n");
         receive_file(socket, buffer, strtok(NULL, " "));
+        break;
+      case '3':
+        printf("adding experience...\n");
+        read_d(socket, buffer);
+        printf("experience added\n");
         break;
       case '4':
         printf("awating \"%s\" experiences...\n", strtok(NULL, " "));

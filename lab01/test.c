@@ -3,15 +3,13 @@
 #include <string.h>
 
 int main(void) {
-  FILE *profile = fopen("server/data/joao@unicamp.br.txt", "r");
   char buffer[256];
-  int i;
+  FILE *profile = fopen("server/data/joao@unicamp.br.txt", "a+");
+  int i = 0;
 
-  for (i = 0; i < 6; ++i) // Skip lines until experience data
-    printf("%s\n", fgets(buffer, 256, profile));
-
-  while (fgets(buffer, 256, profile))
-    printf("|%s|\n", buffer);
+  while(strcmp(fgets(buffer, 256, profile), "Experiência:\n")){};
+  do { ++i; } while(fgets(buffer, 256, profile));
+  fprintf(profile, "\t(%d)added experience to profile\n", i);
 
   return 0;
 }
