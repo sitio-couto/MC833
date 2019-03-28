@@ -75,6 +75,12 @@ void make_request(int socket) {
         printf("awaiting file...\n");
         receive_file(socket, buffer, strtok(NULL, " "));
         break;
+      case '4':
+        printf("awating \"%s\" experiences...\n", strtok(NULL, " "));
+        while (buffer[0])
+          receive_data(socket, buffer);
+        printf("experiences received\n");
+        break;
       case '5':
         printf("awating all profiles...\n");
         read_d(socket, buffer);

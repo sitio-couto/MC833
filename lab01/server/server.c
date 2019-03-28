@@ -7,6 +7,7 @@ char* get_name(char*);
 void send_data(int, char*, int);
 void receive_file(int, char*, char*);
 void get_all_profiles(int, char*);
+void get_experience(int, char*, char*);
 
 int main(void){
   int sockfd, new_fd, pid;  // listen on sock_fd, new connection on new_fd
@@ -75,6 +76,11 @@ void request_options(int socket) {
         printf("sending file...\n");
         send_file(socket, buffer, strtok(NULL, " "));
         break;
+      case '4':
+        printf("retrieving experiences...\n");
+        get_experience(socket, buffer, strtok(NULL, " "));
+        printf("experiences retrieved\n");
+        break;
       case '5':
         printf("sending all profiles...\n");
         get_all_profiles(socket, buffer);
@@ -113,7 +119,22 @@ void add_experience(char* email, char* experience) {
   return;
 }
 
-void get_experience(char* email) {
+void get_experience(int socket, char* buffer, char* email) {
+  FILE *profile;
+  char path[BUFFLEN];
+  int i;
+
+  strcat(strcat(strcat(get_path(path),"data/"), email), ".txt");
+  profile = fopen(path, "r");
+  printf("%s\n", path);
+
+  for (i = 0; i < 6; ++i) // Skip lines until experience data
+    fgets(buffer, BUFFLEN, profile);
+
+  while (fgets(buffer, BUFFLEN, profile))
+    write_d(socket, buffer, strlen(buffer));
+  write_d(socket, buffer, 0); // Send empty buffer to sinal eof
+
 
   return;
 }
