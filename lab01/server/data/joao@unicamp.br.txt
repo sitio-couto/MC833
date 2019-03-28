@@ -3,5 +3,4 @@ Santos
 Campinas
 Engenharia de Computação
 Criptografia, Servidores
-Trabalhei com Servidores por 2 anos na Empresa Y
-Estágio de 1 ano na Empresa X, onde trabalhei com Criptografia
+(1)Add some experience
