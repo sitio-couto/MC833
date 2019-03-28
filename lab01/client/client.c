@@ -76,6 +76,12 @@ void make_request(int socket) {
         printf("awaiting file...\n");
         receive_file(socket, buffer, strtok(NULL, " "));
         break;
+      case '1':
+        printf("awaiting names by course...\n");
+        while (buffer[0])
+          receive_data(socket, buffer);
+        printf("received names\n");
+        break;
       case '2':
         printf("getting habilities by city...\n");
         while (buffer[0])
@@ -140,7 +146,7 @@ void receive_file(int socket, char *buffer, char *path) {
   long int i = 0, base, size;
   char file_name[BUFFLEN];
 
-  strcat(strcat(get_path(buffer), "data/"), strcpy(file_name, path));
+  strcat(strcat(strcat(get_path(buffer), "data/"), strcpy(file_name, path)),".jpg");
   printf("receving files \"%s\"...\n", buffer);
   output = fopen(buffer, "wb"); // create/erase file to write
 

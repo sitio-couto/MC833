@@ -10,7 +10,8 @@ void get_all_profiles(int, char*);
 void get_experience(int, char*, char*);
 void add_experience(int, char*, char*);
 void habilities_by_city(int, char*, char*);
-char* get_entry(FILE*, char*, char*);
+void names_by_course(int, char*, char*);
+char* get_line(FILE*, char*, int);
 char* get_path2(char*, char*, char);
 
 int main(void){
@@ -80,6 +81,11 @@ void request_options(int socket) {
         printf("sending file...\n");
         send_file(socket, buffer, strtok(NULL, " "));
         break;
+      case '1':
+        printf("retrieving name by course...\n");
+        names_by_course(socket, buffer, &buffer[strlen(buffer)+1]);
+        printf("names retrieved\n");
+        break;
       case '2':
         printf("retrieving habilities by city...\n");
         habilities_by_city(socket, buffer, strtok(NULL, " "));
@@ -117,8 +123,34 @@ void request_options(int socket) {
 
 // OPTIONS FUNCTIONS ///////////////////////////////////////////////////////////
 
-void names_by_course(char* course) {
+void names_by_course(int socket, char* buffer, char* course_b) {
+  FILE *index, *profile;
+  char course[BUFFLEN], email[BUFFLEN];
 
+  strcpy(course, course_b);
+  index = fopen(get_path2(buffer, "index", 't'), "r");
+
+  while (fgets(email, BUFFLEN, index)) {
+    email[strlen(email)-1] = '\0';
+    profile = fopen(get_path2(buffer, email, 't'), "r");
+    get_line(profile, buffer, 4);
+    printf("%s graduated in |%s|%s|\n", email, buffer, course);
+
+    if (!strcmp(buffer, course)) {
+      sprintf(buffer, "\"%s\" name:\n", email);
+      write_d(socket, buffer, strlen(buffer));
+      get_line(profile, buffer, 1);
+      strcat(buffer, " ");
+      get_line(profile, &buffer[strlen(buffer)], 2);
+      strcat(buffer, "\n");
+      write_d(socket, buffer, strlen(buffer));
+    }
+
+    fclose(profile);
+  }
+  write_d(socket, buffer, 0); // Send empty buffer to signal eof
+
+  fclose(index);
   return;
 }
 
@@ -133,13 +165,13 @@ void habilities_by_city(int socket, char* buffer, char* city_b) {
   while (fgets(email, BUFFLEN, index)) {
     email[strlen(email)-1] = '\0';
     profile = fopen(get_path2(buffer, email, 't'), "r");
-    get_entry(profile, buffer, "Residência:");
+    get_line(profile, buffer, 3);
     printf("%s lives in %s\n", email, buffer);
 
     if (!strcmp(buffer, city)) {
       sprintf(buffer, "\"%s\" habilities:\n", email);
       write_d(socket, buffer, strlen(buffer));
-      get_entry(profile, buffer, "Habilidades:");
+      get_line(profile, buffer, 5);
       strcat(buffer, "\n");
       write_d(socket, buffer, strlen(buffer));
     }
@@ -155,17 +187,15 @@ void habilities_by_city(int socket, char* buffer, char* city_b) {
 void add_experience(int socket, char* buffer, char* email_b) {
   FILE *profile;
   char email[BUFFLEN], exp[BUFFLEN];
-  int i=0;
+  int i = 0, start = 5;
 
   strcpy(email, email_b);
   strcpy(exp, &email_b[strlen(email_b)+1]);
-  strcat(strcat(strcat(get_path(buffer), "data/"), email), ".txt");
-  profile = fopen(buffer, "a+");
+  profile = fopen(get_path2(buffer, email, 't'), "a+");
   printf("adding \"%s\" to profile \"%s\"\n", exp, email);
 
-  while(strcmp(fgets(buffer, 256, profile), "Experiência:\n")){};
-  do { ++i; } while(fgets(buffer, 256, profile));
-  fprintf(profile, "\t(%d)%s\n", i, exp);
+  while(get_line(profile, buffer, (++i)+start));
+  fprintf(profile, "(%d)%s\n", i, exp);
   write_d(socket, buffer, 0);
 
   fclose(profile);
@@ -176,20 +206,16 @@ void add_experience(int socket, char* buffer, char* email_b) {
 void get_experience(int socket, char* buffer, char* email) {
   FILE *profile;
   char path[BUFFLEN];
-  int i;
+  int i = 5;
 
-  strcat(strcat(strcat(get_path(path),"data/"), email), ".txt");
-  profile = fopen(path, "r");
-  printf("%s\n", path);
+  profile = fopen(get_path2(path, email, 't'), "r");
 
-  for (i = 0; i < 6; ++i) // Skip lines until experience data
-    fgets(buffer, BUFFLEN, profile);
 
-  while (fgets(buffer, BUFFLEN, profile))
-    write_d(socket, buffer, strlen(buffer));
+  while (get_line(profile, buffer, i++))
+    write_d(socket, strcat(buffer, "\n"), strlen(buffer)+1);
   write_d(socket, buffer, 0); // Send empty buffer to sinal eof
 
-
+  fclose(profile);
   return;
 }
 
@@ -211,9 +237,12 @@ void get_all_profiles(int socket, char *buffer) {
 }
 
 void get_profile(int socket, char* buffer, char *buff_email) {
-
-  char c, email[BUFFLEN];
   FILE *fptr;
+  int line = 0;
+  char email[BUFFLEN], tag[BUFFLEN];
+  char* tags[] = {"Nome: \0","Sobrenome: \0","Residência: \0", "Formação acadêmica: \0",
+                  "Habilidades: \0","Experiências: \0", "              \0"};
+
 
   strcpy(email, buff_email); // Copy email key from buffer
 
@@ -232,8 +261,12 @@ void get_profile(int socket, char* buffer, char *buff_email) {
   }
 
   // Send contents from file
-  while (fgets(buffer, BUFFLEN, fptr))
-    write_d(socket, buffer, strlen(buffer));
+  while (fgets(buffer, BUFFLEN, fptr)) {
+    strcpy(tag, tags[line]);
+    strcat(tag, buffer);
+    write_d(socket, tag, strlen(tag));
+    if (line < 6) ++line;
+  }
   write_d(socket, buffer, 0); // Send empty buffer to sinal eof
 
   return;
@@ -341,12 +374,16 @@ char* get_name(char *path) {
 // FILE SEARCH FUNCTIONS //////////////////////////////////////////////////////
 
 // Retrieves a specific entry from the profile
-char* get_entry(FILE* profile, char* buffer, char* entry) {
+char* get_line(FILE* profile, char* buffer, int line) {
   int i, position = ftell(profile);
+
   fseek(profile, 0, SEEK_SET);
-  do fscanf(profile, " %s", buffer);
-  while (strcmp(buffer, entry));
-  fscanf(profile, " %[^\n]", buffer);
+  for (i = 1; i < line; ++i) fgets(buffer, BUFFLEN, profile);
+  buffer = fgets(buffer, BUFFLEN, profile);
   fseek(profile, position, SEEK_SET);
+
+  if (buffer && buffer[strlen(buffer)-1] == '\n')
+    buffer[strlen(buffer)-1] = '\0';
+
   return buffer;
 }
