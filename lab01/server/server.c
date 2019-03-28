@@ -2,6 +2,7 @@
 void request_options(int);
 void get_profile(int, char*, char*);
 void send_file(int, char*, char*);
+void send_help(int, char*);
 char* get_name(char*);
 void send_data(int, char*, int);
 void receive_file(int, char*, char*);
@@ -66,7 +67,11 @@ void request_options(int socket) {
   char buffer[BUFFLEN];
 
   // notify connections is set
-  strcpy(buffer, "connection is set...");
+  strcpy(buffer, "connection is set...\n");
+  write(socket, buffer, strlen(buffer));
+
+  // notify connections is set
+  strcpy(buffer, "Type help for instructions");
   write(socket, buffer, strlen(buffer));
 
   while(1){
@@ -108,6 +113,10 @@ void request_options(int socket) {
         printf("retrieving profile...\n");
         get_profile(socket, buffer, strtok(NULL, " "));
         printf("profile sent.\n");
+        break;
+      case 'h':
+        printf("sending help info...\n");
+        send_help(socket, buffer);
         break;
       default:
         printf("invalid option\n");
@@ -265,6 +274,22 @@ void get_profile(int socket, char* buffer, char *buff_email) {
     if (line < 6) ++line;
   }
   write_d(socket, buffer, 0); // Send empty buffer to sinal eof
+
+  return;
+}
+
+void send_help(int socket, char *buffer) {
+  FILE *help;
+
+  get_path(buffer, "help", 't');
+  help = fopen(buffer, "r");
+
+  while (fgets(buffer, BUFFLEN, help)) {
+    buffer[strlen(buffer)-1] = '\0';
+    printf("sending: %s\n", buffer);
+    write_d(socket, buffer, strlen(buffer));
+  }
+  write_d(socket, buffer, 0); // Send empty buffer to signal eof
 
   return;
 }

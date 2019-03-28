@@ -115,6 +115,10 @@ void make_request(int socket) {
         receive_data(socket, buffer);
         printf("\nprofile received\n");
         break;
+      case 'h':
+        while (buffer[0])
+        receive_data(socket, buffer);
+        break;
       default:
         printf("invalid option\n");
     }
@@ -132,7 +136,7 @@ void receive_data(int socket, char *buffer) {
   buffer[0] = 'x';
   while (buffer[0] != '\0') {  // print all messages
       read_d(socket, buffer);
-      printf("%s", buffer);
+      printf("%s\n", buffer);
   }
 
   return;
