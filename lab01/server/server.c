@@ -9,6 +9,9 @@ void receive_file(int, char*, char*);
 void get_all_profiles(int, char*);
 void get_experience(int, char*, char*);
 void add_experience(int, char*, char*);
+void habilities_by_city(int, char*, char*);
+char* get_entry(FILE*, char*, char*);
+char* get_path2(char*, char*, char);
 
 int main(void){
   int sockfd, new_fd, pid;  // listen on sock_fd, new connection on new_fd
@@ -77,6 +80,11 @@ void request_options(int socket) {
         printf("sending file...\n");
         send_file(socket, buffer, strtok(NULL, " "));
         break;
+      case '2':
+        printf("retrieving habilities by city...\n");
+        habilities_by_city(socket, buffer, strtok(NULL, " "));
+        printf("habilities retrieved\n");
+        break;
       case '3':
         printf("adding experience...\n");
         add_experience(socket, buffer, strtok(NULL, " "));
@@ -114,8 +122,33 @@ void names_by_course(char* course) {
   return;
 }
 
-void habilities_by_city(char* city) {
+void habilities_by_city(int socket, char* buffer, char* city_b) {
+  FILE *index, *profile;
+  char city[BUFFLEN], email[BUFFLEN];
 
+  strcpy(city, city_b);
+
+  index = fopen(get_path2(buffer, "index", 't'), "r");
+
+  while (fgets(email, BUFFLEN, index)) {
+    email[strlen(email)-1] = '\0';
+    profile = fopen(get_path2(buffer, email, 't'), "r");
+    get_entry(profile, buffer, "Residência:");
+    printf("%s lives in %s\n", email, buffer);
+
+    if (!strcmp(buffer, city)) {
+      sprintf(buffer, "\"%s\" habilities:\n", email);
+      write_d(socket, buffer, strlen(buffer));
+      get_entry(profile, buffer, "Habilidades:");
+      strcat(buffer, "\n");
+      write_d(socket, buffer, strlen(buffer));
+    }
+
+    fclose(profile);
+  }
+  write_d(socket, buffer, 0); // Send empty buffer to signal eof
+
+  fclose(index);
   return;
 }
 
@@ -259,6 +292,8 @@ void send_file(int socket, char *buffer, char *full_path) {
   return;
 }
 
+// PATH HANDLING FUNCTIONS ////////////////////////////////////////////////////
+
 // Gets the full path of the file to be sent
 char* get_path(char *path) {
   char szTmp[32];
@@ -273,6 +308,26 @@ char* get_path(char *path) {
   return path; // return path size and full path
 }
 
+// Gets the full path of the file to be sent
+char* get_path2(char* path, char* file_name_buff, char id) {
+  char szTmp[32], file_name[BUFFLEN];
+  int bytes;
+
+  strcpy(file_name, file_name_buff);        // make sure file_name wont be overwritten
+  sprintf(szTmp, "/proc/%d/exe", getpid()); // get this process origin file path
+  bytes = readlink(szTmp, path, BUFFLEN);   // save path
+
+  for (bytes ; path[bytes] != '/'; --bytes); // removes the process name
+  path[bytes+1] = '\0'; // add eof
+
+  if (id == 'i')
+    strcat(strcat(strcat(path, "data/images/"), file_name), ".jpg");
+  else if (id == 't')
+    strcat(strcat(strcat(path, "data/"), file_name), ".txt");
+
+  return path; // return path size and full path
+}
+
 // This was create solely for the purpose of testing the # option
 char* get_name(char *path) {
   int i;
@@ -281,4 +336,17 @@ char* get_name(char *path) {
     if (path[i] == '/') return &(path[i+1]);
 
   return path;
+}
+
+// FILE SEARCH FUNCTIONS //////////////////////////////////////////////////////
+
+// Retrieves a specific entry from the profile
+char* get_entry(FILE* profile, char* buffer, char* entry) {
+  int i, position = ftell(profile);
+  fseek(profile, 0, SEEK_SET);
+  do fscanf(profile, " %s", buffer);
+  while (strcmp(buffer, entry));
+  fscanf(profile, " %[^\n]", buffer);
+  fseek(profile, position, SEEK_SET);
+  return buffer;
 }

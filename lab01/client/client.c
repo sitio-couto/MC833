@@ -76,6 +76,12 @@ void make_request(int socket) {
         printf("awaiting file...\n");
         receive_file(socket, buffer, strtok(NULL, " "));
         break;
+      case '2':
+        printf("getting habilities by city...\n");
+        while (buffer[0])
+          receive_data(socket, buffer);
+        printf("habilities received\n");
+        break;
       case '3':
         printf("adding experience...\n");
         read_d(socket, buffer);

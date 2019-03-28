@@ -5,11 +5,11 @@
 int main(void) {
   char buffer[256];
   FILE *profile = fopen("server/data/joao@unicamp.br.txt", "a+");
-  int i = 0;
 
-  while(strcmp(fgets(buffer, 256, profile), "Experiência:\n")){};
-  do { ++i; } while(fgets(buffer, 256, profile));
-  fprintf(profile, "\t(%d)added experience to profile\n", i);
+  do fscanf(profile, " %s", buffer);
+  while(strcmp(buffer, "Experiências:"));
+  fgets(buffer, 256, profile);
+  printf("he lives in %s\n", buffer);
 
   return 0;
 }
