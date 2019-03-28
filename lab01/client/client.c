@@ -107,10 +107,10 @@ void make_request(int socket) {
           receive_data(socket, buffer);
           read_d(socket, buffer);
         }
-        printf("all profiles received\n");
+        printf("\nall profiles received\n");
         break;
       case '6':
-        printf("awating profile...\n\n");
+        printf("awating profile...\n");
         receive_file(socket, buffer, strtok(NULL, " "));
         receive_data(socket, buffer);
         printf("\nprofile received\n");
@@ -147,7 +147,7 @@ void receive_file(int socket, char *buffer, char *path) {
   char file_name[BUFFLEN];
 
   strcat(strcat(strcat(get_path(buffer), "data/"), strcpy(file_name, path)),".jpg");
-  printf("receving files \"%s\"...\n", buffer);
+  printf("\nreceving profile image: \"%s\"...\n", buffer);
   output = fopen(buffer, "wb"); // create/erase file to write
 
   read_d(socket, buffer);           // Read size
@@ -159,35 +159,8 @@ void receive_file(int socket, char *buffer, char *path) {
       fputc(buffer[i%BUFFLEN], output);
   }
 
-  printf("file received\n\n");
+  printf("image received\n");
   fclose(output);
-  return;
-}
-
-// This function splits files and send it in messages
-void send_file(int socket, char *buffer, char *path) {
-  FILE *input;           // File to be sent
-  long int i = 0, size;  // Size of the file to be sent
-
-  input = fopen(path, "rb");
-  printf("sending file \"%s\"\n", get_name(path));
-
-  // Get size (amount of char in the file)
-  fseek(input, 0, SEEK_END);
-  size = ftell(input);
-  fseek(input, 0, SEEK_SET);
-
-  sprintf(buffer, "%ld", size);             // Cast size to string
-  write_d(socket, buffer, strlen(buffer));  // Send file size
-
-  while (i < size) { // reads char by char filling n saving buffers until eof
-    buffer[(i++)%BUFFLEN] = fgetc(input); // Add char to buffer, then incremente i
-    if (i%BUFFLEN == 0 || i == size)      // i buffer full or EOF send data
-      write_d(socket, buffer, BUFFLEN);   // sends entire buffer to avoid border issues
-  }
-
-  printf("file sent\n");
-  fclose(input);
   return;
 }
 

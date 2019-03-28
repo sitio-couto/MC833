@@ -2,7 +2,6 @@
 void request_options(int);
 void get_profile(int, char*, char*);
 void send_file(int, char*, char*);
-char* get_path(char*);
 char* get_name(char*);
 void send_data(int, char*, int);
 void receive_file(int, char*, char*);
@@ -12,7 +11,7 @@ void add_experience(int, char*, char*);
 void habilities_by_city(int, char*, char*);
 void names_by_course(int, char*, char*);
 char* get_line(FILE*, char*, int);
-char* get_path2(char*, char*, char);
+char* get_path(char*, char*, char);
 
 int main(void){
   int sockfd, new_fd, pid;  // listen on sock_fd, new connection on new_fd
@@ -128,11 +127,11 @@ void names_by_course(int socket, char* buffer, char* course_b) {
   char course[BUFFLEN], email[BUFFLEN];
 
   strcpy(course, course_b);
-  index = fopen(get_path2(buffer, "index", 't'), "r");
+  index = fopen(get_path(buffer, "index", 't'), "r");
 
   while (fgets(email, BUFFLEN, index)) {
     email[strlen(email)-1] = '\0';
-    profile = fopen(get_path2(buffer, email, 't'), "r");
+    profile = fopen(get_path(buffer, email, 't'), "r");
     get_line(profile, buffer, 4);
     printf("%s graduated in |%s|%s|\n", email, buffer, course);
 
@@ -160,11 +159,11 @@ void habilities_by_city(int socket, char* buffer, char* city_b) {
 
   strcpy(city, city_b);
 
-  index = fopen(get_path2(buffer, "index", 't'), "r");
+  index = fopen(get_path(buffer, "index", 't'), "r");
 
   while (fgets(email, BUFFLEN, index)) {
     email[strlen(email)-1] = '\0';
-    profile = fopen(get_path2(buffer, email, 't'), "r");
+    profile = fopen(get_path(buffer, email, 't'), "r");
     get_line(profile, buffer, 3);
     printf("%s lives in %s\n", email, buffer);
 
@@ -191,7 +190,7 @@ void add_experience(int socket, char* buffer, char* email_b) {
 
   strcpy(email, email_b);
   strcpy(exp, &email_b[strlen(email_b)+1]);
-  profile = fopen(get_path2(buffer, email, 't'), "a+");
+  profile = fopen(get_path(buffer, email, 't'), "a+");
   printf("adding \"%s\" to profile \"%s\"\n", exp, email);
 
   while(get_line(profile, buffer, (++i)+start));
@@ -206,9 +205,9 @@ void add_experience(int socket, char* buffer, char* email_b) {
 void get_experience(int socket, char* buffer, char* email) {
   FILE *profile;
   char path[BUFFLEN];
-  int i = 5;
+  int i = 6;
 
-  profile = fopen(get_path2(path, email, 't'), "r");
+  profile = fopen(get_path(path, email, 't'), "r");
 
 
   while (get_line(profile, buffer, i++))
@@ -222,7 +221,7 @@ void get_experience(int socket, char* buffer, char* email) {
 void get_all_profiles(int socket, char *buffer) {
   FILE *index;
 
-  strcat(get_path(buffer), "data/index.txt");
+  get_path(buffer, "index", 't');
   index = fopen(buffer, "r");
 
   while (fgets(buffer, BUFFLEN, index)) {
@@ -246,14 +245,12 @@ void get_profile(int socket, char* buffer, char *buff_email) {
 
   strcpy(email, buff_email); // Copy email key from buffer
 
-  // Gets image form server
-
-  strcat(strcat(strcat(get_path(buffer), "data/images/"), email), ".jpg");
+  // Gets image from server
+  get_path(buffer, email, 'i');
   send_file(socket, buffer, buffer);
 
   // Gets the values in the txt file
-
-  strcat(strcat(strcat(get_path(buffer), "data/"), email), ".txt");
+  get_path(buffer, email, 't');
 
   if ((fptr = fopen(buffer,"r")) == NULL){
       printf("Error! opening file: %s\n", buffer);
@@ -273,30 +270,6 @@ void get_profile(int socket, char* buffer, char *buff_email) {
 }
 
 // FILE TRANSFER FUNCTIONS /////////////////////////////////////////////////////
-
-// This function receives a file from the socket
-void receive_file(int socket, char *buffer, char *path) {
-  FILE *output;
-  int msg_len;
-  long int i = 0, base, size;
-
-  get_path(path);             // Local path is now a full path
-  output = fopen(path, "wb"); // create/erase file to write
-  printf("receving file \"%s\"...\n", get_name(path));
-
-  read_d(socket, buffer);           // Read size
-  size = strtol(buffer, NULL, 10);  // Cast size to long int
-
-  while (i < size) {
-    read_d(socket, buffer); // Read a full buffer.
-    for (base = i; (i < base + BUFFLEN) && (i < size); ++i) // Write elements
-      fputc(buffer[i%BUFFLEN], output);
-  }
-
-  printf("file received\n");
-  fclose(output);
-  return;
-}
 
 // This function splits files from /data/ and send then to the client
 void send_file(int socket, char *buffer, char *full_path) {
@@ -328,21 +301,7 @@ void send_file(int socket, char *buffer, char *full_path) {
 // PATH HANDLING FUNCTIONS ////////////////////////////////////////////////////
 
 // Gets the full path of the file to be sent
-char* get_path(char *path) {
-  char szTmp[32];
-  int bytes;
-
-  sprintf(szTmp, "/proc/%d/exe", getpid()); // get this process origin file path
-  bytes = readlink(szTmp, path, BUFFLEN);   // save path
-
-  for (bytes ; path[bytes] != '/'; --bytes); // removes the process name
-  path[bytes+1] = '\0'; // add eof
-
-  return path; // return path size and full path
-}
-
-// Gets the full path of the file to be sent
-char* get_path2(char* path, char* file_name_buff, char id) {
+char* get_path(char* path, char* file_name_buff, char id) {
   char szTmp[32], file_name[BUFFLEN];
   int bytes;
 
