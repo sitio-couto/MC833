@@ -7,6 +7,8 @@ void send_file(int, char*, char*);
 void receive_data(int, char*);
 char* get_path(char*);
 
+clock_t start, end;
+double cpu_time_used;
 
 int main(int argc, char *argv[])
 {
@@ -70,6 +72,8 @@ void make_request(int socket) {
     scanf(" %[^\n]", buffer);
     write_d(socket, buffer, strlen(buffer));
 
+    start = clock(); // clock for testing
+
     // Await server commands
     switch (strtok(buffer, " ")[0]) {
       case '#':
@@ -123,6 +127,9 @@ void make_request(int socket) {
         printf("invalid option\n");
     }
 
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("Task time: %lf\n", cpu_time_used);
   }
 
   return;
