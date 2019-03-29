@@ -148,7 +148,7 @@ void make_request(int socket) {
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("Task time: %lf\n", cpu_time_used);
     if (time_path) {
-      fprintf(time_output,"%lf\n", ++time_count, cpu_time_used);
+      fprintf(time_output,"%lf\n", cpu_time_used);
     }
   }
 
