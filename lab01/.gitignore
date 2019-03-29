@@ -1,4 +1,5 @@
 server/server
 client/client
 client/data/*
+!client/data/.placeholder
 *.gch
