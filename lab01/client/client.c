@@ -9,14 +9,22 @@ char* get_path(char*);
 
 clock_t start, end;
 double cpu_time_used;
+int time_count = 0;
+char* time_path;
+FILE* time_output;
 
 int main(int argc, char *argv[])
 {
     int sockfd, rv;
     struct addrinfo hints, *p, *servers;
-    if (argc != 2) {
+    if (argc < 2) {
         fprintf(stderr,"usage: client hostname\n");
         exit(1);
+    }
+
+    if (argc == 3) {
+      time_path = argv[2];
+      time_output = fopen(time_path, "w");
     }
 
     memset(&hints, 0, sizeof hints);
@@ -65,7 +73,7 @@ void make_request(int socket) {
   // receive server connection set confirmation
   read_d(socket, buffer);
   printf("%s\n", buffer);
-  
+
   // receive help
   read_d(socket, buffer);
   printf("%s\n", buffer);
@@ -75,6 +83,10 @@ void make_request(int socket) {
     // Scan and send user request
     printf("awaiting input:\n");
     scanf(" %[^\n]", buffer);
+    if (!strlen(buffer))
+      exit(1);
+    else if (time_path)
+      while(cpu_time_used = ((double) (clock() - end)) / CLOCKS_PER_SEC < 3);
     write_d(socket, buffer, strlen(buffer));
 
     start = clock(); // clock for testing
@@ -135,6 +147,9 @@ void make_request(int socket) {
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("Task time: %lf\n", cpu_time_used);
+    if (time_path) {
+      fprintf(time_output,"%lf\n", ++time_count, cpu_time_used);
+    }
   }
 
   return;
