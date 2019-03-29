@@ -65,6 +65,11 @@ void make_request(int socket) {
   // receive server connection set confirmation
   read_d(socket, buffer);
   printf("%s\n", buffer);
+  
+  // receive help
+  read_d(socket, buffer);
+  printf("%s\n", buffer);
+
 
   while(1) {
     // Scan and send user request

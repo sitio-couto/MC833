@@ -68,11 +68,11 @@ void request_options(int socket) {
 
   // notify connections is set
   strcpy(buffer, "connection is set...\n");
-  write(socket, buffer, strlen(buffer));
+  write_d(socket, buffer, strlen(buffer));
 
   // notify connections is set
   strcpy(buffer, "Type help for instructions");
-  write(socket, buffer, strlen(buffer));
+  write_d(socket, buffer, strlen(buffer));
 
   while(1){
     // Await new message from client
