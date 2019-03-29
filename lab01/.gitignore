@@ -1,3 +1,4 @@
 server/server
 client/client
+client/data/*
 *.gch
