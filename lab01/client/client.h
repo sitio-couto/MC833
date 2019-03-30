@@ -34,15 +34,19 @@ int write_d(int socket, char *buffer, int length){
 
 // Debuggin wrapper for recv
 int read_d(int socket, char *buffer) {
-  int r_val;
+  int r_val, bytes_read = 0;
 
-  if ((r_val = recv(socket, buffer, BUFFLEN, 0)) == -1) {
-    perror("ERROR: send");
-    exit(1);
-  } else if (r_val == 0) { // if client not responding
-    printf("ERROR: pairing socket is closed\n");
-    exit(1);
+  while (bytes_read != BUFFLEN) {
+    if ((r_val = recv(socket, buffer, BUFFLEN, 0)) == -1) {
+      perror("ERROR: send");
+      exit(1);
+    } else if (r_val == 0) { // if client not responding
+      printf("ERROR: pairing socket is closed\n");
+      exit(1);
+    } else {
+      bytes_read += r_val;
+    }
   }
 
-  return r_val;
+  return bytes_read;
 }
