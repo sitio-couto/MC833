@@ -12,7 +12,6 @@
 
 #define BUFFLEN 256 // Length of the message buffer
 #define PORT "3490" // the port client will be connecting to
-#define MAXDATASIZE 100 // max number of bytes we can get at once
 
 // Funcions signatures
 void receive_file(int, char*, char*);
