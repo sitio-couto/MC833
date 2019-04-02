@@ -16,6 +16,22 @@
 #define BACKLOG 10      // how many pending connections queue will hold
 #define MAXDATASIZE 100 // max number of bytes we can send at once
 
+// FUNCTIONS signatures
+void request_options(int);
+void get_profile(int, char*, char*);
+void send_file(int, char*, char*);
+void send_help(int, char*);
+char* get_name(char*);
+void send_data(int, char*, int);
+void receive_file(int, char*, char*);
+void get_all_profiles(int, char*);
+void get_experience(int, char*, char*);
+void add_experience(int, char*, char*);
+void habilities_by_city(int, char*, char*);
+void names_by_course(int, char*, char*);
+char* get_line(FILE*, char*, int);
+char* get_path(char*, char*, char);
+
 // Debuggin wrapper for send
 int write_d(int socket, char *buffer, int length){
   int i, r_val;

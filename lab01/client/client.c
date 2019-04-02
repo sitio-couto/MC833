@@ -1,12 +1,5 @@
 #include "client.h"
 
-void receive_file(int, char*, char*);
-void make_request(int);
-char* get_name(char*);
-void send_file(int, char*, char*);
-void receive_data(int, char*);
-char* get_path(char*);
-
 clock_t start, end;
 double cpu_time_used;
 int time_count = 0;
@@ -86,7 +79,7 @@ void make_request(int socket) {
     if (!strlen(buffer))
       exit(1);
     else if (time_path)
-      while(cpu_time_used = ((double) (clock() - end)) / CLOCKS_PER_SEC < 3);
+      while(cpu_time_used = ((double) (clock() - end)) / CLOCKS_PER_SEC < 1);
     write_d(socket, buffer, strlen(buffer));
 
     start = clock(); // clock for testing
