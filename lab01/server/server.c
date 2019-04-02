@@ -1,18 +1,4 @@
 #include "server.h"
-void request_options(int);
-void get_profile(int, char*, char*);
-void send_file(int, char*, char*);
-void send_help(int, char*);
-char* get_name(char*);
-void send_data(int, char*, int);
-void receive_file(int, char*, char*);
-void get_all_profiles(int, char*);
-void get_experience(int, char*, char*);
-void add_experience(int, char*, char*);
-void habilities_by_city(int, char*, char*);
-void names_by_course(int, char*, char*);
-char* get_line(FILE*, char*, int);
-char* get_path(char*, char*, char);
 
 int main(void){
   int sockfd, new_fd, pid;  // listen on sock_fd, new connection on new_fd

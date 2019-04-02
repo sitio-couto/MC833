@@ -14,6 +14,14 @@
 #define PORT "3490" // the port client will be connecting to
 #define MAXDATASIZE 100 // max number of bytes we can get at once
 
+// Funcions signatures
+void receive_file(int, char*, char*);
+void make_request(int);
+char* get_name(char*);
+void send_file(int, char*, char*);
+void receive_data(int, char*);
+char* get_path(char*);
+
 // Debuggin wrapper for send
 int write_d(int socket, char *buffer, int length){
   int i, r_val;
@@ -34,15 +42,19 @@ int write_d(int socket, char *buffer, int length){
 
 // Debuggin wrapper for recv
 int read_d(int socket, char *buffer) {
-  int r_val;
+  int r_val, total = 0;
 
-  if ((r_val = recv(socket, buffer, BUFFLEN, 0)) == -1) {
-    perror("ERROR: send");
-    exit(1);
-  } else if (r_val == 0) { // if client not responding
-    printf("ERROR: pairing socket is closed\n");
-    exit(1);
+  while (total != BUFFLEN) {
+    if ((r_val = recv(socket, &buffer[total], (BUFFLEN - total), 0)) == -1) {
+      perror("ERROR: send");
+      exit(1);
+    } else if (r_val == 0) { // if client not responding
+      printf("ERROR: pairing socket is closed\n");
+      exit(1);
+    } else {
+      total += r_val;
+    }
   }
 
-  return r_val;
+  return total;
 }
