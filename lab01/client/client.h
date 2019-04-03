@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <time.h>
+#include <sys/time.h>
 
 #define BUFFLEN 256 // Length of the message buffer
 #define PORT "3490" // the port client will be connecting to

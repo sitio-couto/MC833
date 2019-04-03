@@ -1,6 +1,15 @@
 #include "server.h"
 
-int main(void){
+clock_t start, end;
+double cpu_time_used;
+int time_count = 0;
+char* time_path;
+FILE* time_output;
+
+struct timeval t1, t2;
+double elapsed;
+
+int main(int argc, char *argv[]){
   int sockfd, new_fd, pid;  // listen on sock_fd, new connection on new_fd
   struct sockaddr_in server, client;
   int sin_size;
@@ -8,6 +17,11 @@ int main(void){
   if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
     perror("gateway socket");
     exit(1);
+  }
+
+  if (argc == 2) {
+    time_path = argv[1];
+    time_output = fopen(time_path, "w");
   }
 
   memset(&server, 0, sizeof server);
@@ -64,6 +78,8 @@ void request_options(int socket) {
     // Await new message from client
     printf("server awaiting new message...\n");
     read_d(socket, buffer);
+    gettimeofday(&t1, NULL);
+    // start = clock();
 
     // Test which request the client aksed for
     switch (strtok(buffer, " ")[0]) {
@@ -104,10 +120,20 @@ void request_options(int socket) {
         printf("sending help info...\n");
         send_help(socket, buffer);
         break;
+      case 'e':
+        return;
       default:
         printf("invalid option\n");
     }
 
+    double elapsed = (t2.tv_sec - t1.tv_sec) + ((t2.tv_usec - t1.tv_usec)/1000000.0);
+    printf("Real time: %lf\n", elapsed);
+
+    // cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    // printf("Task time: %lf\n", cpu_time_used);
+    if (time_path) {
+      fprintf(time_output,"%lf\n", elapsed);
+    }
     // End connection if requested by client
     if (!strcmp(buffer, "exit")) break;
   }
@@ -142,6 +168,8 @@ void names_by_course(int socket, char* buffer, char* course_b) {
 
     fclose(profile);
   }
+
+  gettimeofday(&t2, NULL);
   write_d(socket, buffer, 0); // Send empty buffer to signal eof
 
   fclose(index);
@@ -172,6 +200,8 @@ void habilities_by_city(int socket, char* buffer, char* city_b) {
 
     fclose(profile);
   }
+
+  gettimeofday(&t2, NULL);
   write_d(socket, buffer, 0); // Send empty buffer to signal eof
 
   fclose(index);
@@ -190,6 +220,8 @@ void add_experience(int socket, char* buffer, char* email_b) {
 
   while(get_line(profile, buffer, (++i)+start));
   fprintf(profile, "(%d)%s\n", i, exp);
+
+  gettimeofday(&t2, NULL);
   write_d(socket, buffer, 0);
 
   fclose(profile);
@@ -207,6 +239,8 @@ void get_experience(int socket, char* buffer, char* email) {
 
   while (get_line(profile, buffer, i++))
     write_d(socket, strcat(buffer, "\n"), strlen(buffer)+1);
+
+  gettimeofday(&t2, NULL);
   write_d(socket, buffer, 0); // Send empty buffer to sinal eof
 
   fclose(profile);
@@ -225,7 +259,10 @@ void get_all_profiles(int socket, char *buffer) {
     write_d(socket, buffer, strlen(buffer)); // send profile email
     get_profile(socket, buffer, buffer);     // send profile
   }
+
+  gettimeofday(&t2, NULL);
   write_d(socket, buffer, 0); // Send empty buffer to signal eof
+
 
   return;
 }
@@ -259,6 +296,8 @@ void get_profile(int socket, char* buffer, char *buff_email) {
     write_d(socket, tag, strlen(tag));
     if (line < 6) ++line;
   }
+
+  gettimeofday(&t2, NULL);
   write_d(socket, buffer, 0); // Send empty buffer to sinal eof
 
   return;
@@ -275,6 +314,8 @@ void send_help(int socket, char *buffer) {
     printf("sending: %s\n", buffer);
     write_d(socket, buffer, strlen(buffer));
   }
+
+  gettimeofday(&t2, NULL);
   write_d(socket, buffer, 0); // Send empty buffer to signal eof
 
   return;
@@ -304,6 +345,7 @@ void send_file(int socket, char *buffer, char *full_path) {
       write_d(socket, buffer, BUFFLEN);   // sends entire buffer to avoid border issues
   }
 
+  gettimeofday(&t2, NULL);
   printf("file sent\n");
   fclose(input);
   return;

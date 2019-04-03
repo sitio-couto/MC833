@@ -6,6 +6,9 @@ int time_count = 0;
 char* time_path;
 FILE* time_output;
 
+struct timeval t1, t2;
+double elapsed;
+
 int main(int argc, char *argv[])
 {
     int sockfd, rv;
@@ -80,9 +83,10 @@ void make_request(int socket) {
       exit(1);
     else if (time_path)
       while(cpu_time_used = ((double) (clock() - end)) / CLOCKS_PER_SEC < 1);
-    write_d(socket, buffer, strlen(buffer));
 
-    start = clock(); // clock for testing
+    gettimeofday(&t1, NULL);
+    // start = clock(); // clock for testing
+    write_d(socket, buffer, strlen(buffer));
 
     // Await server commands
     switch (strtok(buffer, " ")[0]) {
@@ -133,15 +137,22 @@ void make_request(int socket) {
         while (buffer[0])
         receive_data(socket, buffer);
         break;
+      case 'e':
+        return;
       default:
         printf("invalid option\n");
     }
 
+    gettimeofday(&t2, NULL);
+    double elapsed = (t2.tv_sec - t1.tv_sec) + ((t2.tv_usec - t1.tv_usec)/1000000.0);
+    printf("Real time: %lf\n", elapsed);
     end = clock();
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    printf("Task time: %lf\n", cpu_time_used);
+
+    // end = clock();
+    // cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    // printf("Task time: %lf\n", cpu_time_used);
     if (time_path) {
-      fprintf(time_output,"%lf\n", cpu_time_used);
+      fprintf(time_output,"%lf\n", elapsed);
     }
   }
 
