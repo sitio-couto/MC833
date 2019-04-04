@@ -79,7 +79,6 @@ void request_options(int socket) {
     printf("server awaiting new message...\n");
     read_d(socket, buffer);
     gettimeofday(&t1, NULL);
-    // start = clock();
 
     // Test which request the client aksed for
     switch (strtok(buffer, " ")[0]) {
@@ -129,8 +128,6 @@ void request_options(int socket) {
     double elapsed = (t2.tv_sec - t1.tv_sec) + ((t2.tv_usec - t1.tv_usec)/1000000.0);
     printf("Real time: %lf\n", elapsed);
 
-    // cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    // printf("Task time: %lf\n", cpu_time_used);
     if (time_path) {
       fprintf(time_output,"%lf\n", elapsed);
     }

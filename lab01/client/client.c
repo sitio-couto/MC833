@@ -85,7 +85,6 @@ void make_request(int socket) {
       while(cpu_time_used = ((double) (clock() - end)) / CLOCKS_PER_SEC < 1);
 
     gettimeofday(&t1, NULL);
-    // start = clock(); // clock for testing
     write_d(socket, buffer, strlen(buffer));
 
     // Await server commands
@@ -148,9 +147,6 @@ void make_request(int socket) {
     printf("Real time: %lf\n", elapsed);
     end = clock();
 
-    // end = clock();
-    // cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    // printf("Task time: %lf\n", cpu_time_used);
     if (time_path) {
       fprintf(time_output,"%lf\n", elapsed);
     }
