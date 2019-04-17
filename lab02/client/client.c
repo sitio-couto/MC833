@@ -86,14 +86,14 @@ int main(int argc, char *argv[])
 /// TESTING
     int len, n;
 
-    strcpy(buffer,"TCP full power (from client)");
+    strcpy(buffer,"TCP full power");
     len = strlen(buffer);
     write_d(sock_tcp, buffer, len);
     n = read_d(sock_tcp, buffer);
     buffer[n] = '\0';
     printf("Server TCP: %s\n", buffer);
 
-    strcpy(buffer,"UDP full power (from client)");
+    strcpy(buffer,"UDP full power");
     len = strlen(buffer);
     write_udp(sock_udp, buffer, len, servaddr);
     n = read_udp(sock_udp, buffer, servaddr, &len);

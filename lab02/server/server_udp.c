@@ -9,9 +9,12 @@ FILE* time_output;
 struct timeval t1, t2;
 double elapsed;
 
+int len;
+struct sockaddr_in cliaddr; // Client on current tunr
+
 int main() {
     int sockfd;
-    struct sockaddr_in servaddr, cliaddr;
+    struct sockaddr_in servaddr;
     // for testing
     char buffer[BUFFLEN];
 
@@ -57,18 +60,10 @@ int main() {
 void request_options(int socket) {
   char buffer[BUFFLEN];
 
-  // notify connections is set
-  strcpy(buffer, "connection is set...\n");
-  write_d(socket, buffer, strlen(buffer));
-
-  // notify connections is set
-  strcpy(buffer, "Type help for instructions");
-  write_d(socket, buffer, strlen(buffer));
-
   while(1){
     // Await new message from client
-    printf("server awaiting new message...\n");
-    read_d(socket, buffer);
+    printf("server awaiting UDP message...\n");
+    read_udp(socket, buffer, &cliaddr, &len);
     gettimeofday(&t1, NULL);
 
     // Test which request the client aksed for
@@ -125,12 +120,14 @@ void get_profile(int socket, char* buffer, char *buff_email) {
   while (fgets(buffer, BUFFLEN, fptr)) {
     strcpy(tag, tags[line]);
     strcat(tag, buffer);
-    write_d(socket, tag, strlen(tag));
+    write_udp(socket, tag, strlen(tag), cliaddr);
+    // write_d(socket, tag, strlen(tag));
     if (line < 6) ++line;
   }
 
   gettimeofday(&t2, NULL);
-  write_d(socket, buffer, 0); // Send empty buffer to sinal eof
+  write_udp(socket, buffer, 0, cliaddr);
+  // write_d(socket, buffer, 0); // Send empty buffer to sinal eof
 
   return;
 }
@@ -151,12 +148,14 @@ void send_file(int socket, char *buffer, char *full_path) {
   fseek(input, 0, SEEK_SET);
 
   sprintf(buffer, "%ld", size);             // Cast size to string
-  write_d(socket, buffer, strlen(buffer));  // Send file size to client
+  write_udp(socket, buffer, strlen(buffer), cliaddr);
+  // write_d(socket, buffer, strlen(buffer));  // Send file size to client
 
   while (i < size) { // reads char by char filling buffer until eof
     buffer[(i++)%BUFFLEN] = fgetc(input); // Add char to buffer, then incremente i
     if (i%BUFFLEN == 0 || i == size)      // i buffer full or EOF send data
-      write_d(socket, buffer, BUFFLEN);   // sends entire buffer to avoid border issues
+      write_udp(socket, buffer, BUFFLEN, cliaddr);
+      // write_d(socket, buffer, BUFFLEN);   // sends entire buffer to avoid border issues
   }
 
   gettimeofday(&t2, NULL);
