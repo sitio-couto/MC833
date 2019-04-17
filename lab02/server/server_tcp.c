@@ -26,7 +26,7 @@ int main(int argc, char *argv[]){
 
   memset(&server, 0, sizeof server);
   server.sin_family = AF_INET;
-  server.sin_port = htons(PORT);
+  server.sin_port = htons(TCP_PORT);
   server.sin_addr.s_addr = htonl(INADDR_ANY);
 
   if (bind(sockfd, (struct sockaddr *)&server, sizeof(server)) == -1) {
@@ -48,10 +48,22 @@ int main(int argc, char *argv[]){
           exit(1);
       }
 
+      int n, len;
+      char buffer[BUFFLEN];
+
       printf("server: got connection\n");
       if (!fork()) { // this is the child process
           close(sockfd); // child doesn't need the listener
-          request_options(new_fd); // Communication function
+//////////// TESTING
+          n = read_d(new_fd, buffer);
+          buffer[n] = '\0';
+          printf("Client : %s\n", buffer);
+          strcpy(buffer, "TCP server is ready.");
+          len = strlen(buffer);
+          write_d(new_fd, buffer, len);
+          printf("Message sent.\n");
+          // request_options(new_fd); // Communication function
+//////////// *******
           close(new_fd);
           exit(0);
       }

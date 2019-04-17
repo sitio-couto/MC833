@@ -14,7 +14,8 @@
 #include <sys/time.h>
 
 #define BUFFLEN 256     // Length of the message buffer
-#define PORT 3490       // the port users will be connecting to
+#define TCP_PORT 3490   // the TCP port users will be connecting to
+#define UDP_PORT 8080   // the UDP port users will be connectiog to
 #define BACKLOG 10      // how many pending connections queue will hold
 
 // FUNCTIONS signatures
@@ -25,6 +26,7 @@ char* get_name(char*);
 void send_data(int, char*, int);
 char* get_path(char*, char*, char);
 
+// TCP WRAPPERS ////////////////////////////////////////////////////////////////
 // Debuggin wrapper for send
 int write_d(int socket, char *buffer, int length){
   int i, r_val;
@@ -49,6 +51,45 @@ int read_d(int socket, char *buffer) {
 
   while (total != BUFFLEN) {
     if ((r_val = recv(socket, &buffer[total], (BUFFLEN - total), 0)) == -1) {
+      perror("ERROR: send");
+      exit(1);
+    } else if (r_val == 0) { // if client not responding
+      printf("ERROR: pairing socket is closed\n");
+      exit(1);
+    } else {
+      total += r_val;
+    }
+  }
+
+  return total;
+}
+
+// UDP SEND AND RECEIVE WRAPPERS ///////////////////////////////////////////////
+// Debuggin wrapper for sendto
+int write_udp(int socket, char *buffer, int length, struct sockaddr_in target){
+  int i, r_val;
+
+  // Fill message to standard size of buffer
+  for (i = length; i < BUFFLEN; ++i) buffer[i] = '\0';
+
+  if ((r_val = sendto(socket, (const char*)buffer, BUFFLEN, MSG_CONFIRM, (const struct sockaddr*)&target, sizeof(struct sockaddr))) == -1) {
+    perror("ERROR: send");
+    exit(1);
+  } else if (r_val == 0) {
+    printf("ERROR: pairing socket is closed\n");
+    exit(1);
+  }
+
+  return r_val;
+}
+
+// Debuggin wrapper for receivefrom
+int read_udp(int socket, char *buffer, struct sockaddr_in *sender, int* sender_len) {
+  int r_val, total = 0;
+
+  while (total != BUFFLEN) {
+    if ((r_val = recvfrom(socket, &buffer[total], (BUFFLEN - total), MSG_WAITALL,
+                          (struct sockaddr *)sender, sender_len)) == -1) {
       perror("ERROR: send");
       exit(1);
     } else if (r_val == 0) { // if client not responding

@@ -11,8 +11,12 @@ double elapsed;
 
 int main(int argc, char *argv[])
 {
-    int sockfd, rv;
+    int sock_udp, sock_tcp, rv;
     struct addrinfo hints, *p, *servers;
+    struct sockaddr *servaddr;
+    char buffer[BUFFLEN];
+
+
     if (argc < 2) {
         fprintf(stderr,"usage: client hostname\n");
         exit(1);
@@ -23,39 +27,85 @@ int main(int argc, char *argv[])
       time_output = fopen(time_path, "w");
     }
 
+    // Alocate search parameters
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_INET;
+
+    // Search for TCP server
     hints.ai_socktype = SOCK_STREAM;
-    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servers)) != 0) {
+    if ((rv = getaddrinfo(argv[1], TCP_PORT, &hints, &servers)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }
 
-    // loop through all the results and connect to the first we can
+    // loop through all the TCP results and connect to the first we can
     for(p = servers; p != NULL; p = p->ai_next) {
-        sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-        if (sockfd == -1) {
+        sock_tcp = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        // Check if socket was successfully created
+        if (sock_tcp == -1) {
             perror("client: socket");
             continue;
         }
-
-        if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+        // Check if TCP connection was successfully stablished
+        if (connect(sock_tcp, p->ai_addr, p->ai_addrlen) == -1) {
             perror("client: connect");
             continue;
         }
-
         break;
     }
-
+    // If no server within the specifications was found, end.
     if (p == NULL) {
         fprintf(stderr, "client: failed to connect\n");
         return 2;
     }
-
-    printf("client: connecting...\n");
     freeaddrinfo(servers); // all done with this structure
-    make_request(sockfd);
-    close(sockfd);
+
+    // Search for UDP servers
+    hints.ai_socktype = SOCK_DGRAM;
+    if ((rv = getaddrinfo(argv[1], UDP_PORT, &hints, &servers)) != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+        return 1;
+    }
+
+    // loop through all the UDP results and use the first we can
+    for(p = servers; p != NULL; p = p->ai_next) {
+        if ((sock_udp = socket(p->ai_family, p->ai_socktype, 0)) == -1) {
+            perror("client: socket");
+            continue;
+        } else break;
+    }
+
+    // If no server was found within the specidications, end.
+    if (p == NULL) {
+        fprintf(stderr, "client: failed to connect\n");
+        return 2;
+    }
+    // Save destination server for UDP
+    servaddr = p->ai_addr;
+
+/// TESTING
+    int len, n;
+
+    strcpy(buffer,"TCP full power (from client)");
+    len = strlen(buffer);
+    write_d(sock_tcp, buffer, len);
+    n = read_d(sock_tcp, buffer);
+    buffer[n] = '\0';
+    printf("Server TCP: %s\n", buffer);
+
+    strcpy(buffer,"UDP full power (from client)");
+    len = strlen(buffer);
+    write_udp(sock_udp, buffer, len, servaddr);
+    n = read_udp(sock_udp, buffer, servaddr, &len);
+    buffer[n] = '\0';
+    printf("Server UDP: %s\n", buffer);
+////******
+
+
+    // make_request(sock_tcp);
+    freeaddrinfo(servers); // all done with this structure
+    close(sock_tcp);
+    close(sock_udp);
 
     return 0;
 }
