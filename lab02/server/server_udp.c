@@ -50,7 +50,6 @@ int main() {
 
 void request_options(int socket) {
   char buffer[BUFFLEN];
-  double elapsed;
   int len, n;
 
   while(1){

@@ -68,7 +68,6 @@ int main(int argc, char *argv[]){
 
 void request_options(int socket) {
   char buffer[BUFFLEN];
-  double elapsed;
 
   while(1){
     // Await new message from client
@@ -78,7 +77,7 @@ void request_options(int socket) {
 
     // Test which request the client aksed for
     switch (strtok(buffer, " ")[0]) {
-      case '6': // Get full profile
+      case '1': // Get full profile
         printf("retrieving profile...\n");
         get_profile(socket, buffer, strtok(NULL, " "));
         printf("profile sent.\n");

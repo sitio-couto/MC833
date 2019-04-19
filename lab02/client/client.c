@@ -10,12 +10,13 @@ struct timeval t1, t2;
 double elapsed;
 
 char prot;
+struct sockaddr *servaddr;
+int len;
 
 int main(int argc, char *argv[])
 {
     int sock_udp, sock_tcp, rv;
     struct addrinfo hints, *p, *servers;
-    struct sockaddr *servaddr;
     char buffer[BUFFLEN];
 
 
@@ -99,8 +100,7 @@ int main(int argc, char *argv[])
 
 void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
   char buffer[BUFFLEN];
-  double elapsed;
-  int i, socket, len;
+  int i, socket;
 
   while(1) {
     // Scan and send user request
@@ -113,14 +113,17 @@ void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
       while(cpu_time_used = ((double) (clock() - end)) / CLOCKS_PER_SEC < 1);
     gettimeofday(&t1, NULL);
 
-    // Select protocol
+    // Select socket by protocol
     prot = strtok(buffer, " ")[0];
     if      (prot == 't') socket = sock_tcp;
     else if (prot == 'u') socket = sock_udp;
-    transfer(prot, 'w', socket, &buffer[2], strlen(buffer), servaddr, &len);
+    
+    // Remove protocol from message and send to server
+    strcpy(buffer, &buffer[2]);
+    transfer(prot, 'w', socket, buffer, strlen(buffer), servaddr, &len);
 
     // Await server commands
-    switch (strtok(NULL, " ")[0]) {
+    switch (strtok(buffer, " ")[0]) {
       case '1':
         printf("awating profile...\n");
         receive_file(socket, buffer, strtok(NULL, " "));
@@ -160,7 +163,7 @@ void receive_data(int socket, char *buffer) {
 
   buffer[0] = 'x';
   while (buffer[0] != '\0') {  // print all messages
-      read_d(socket, buffer);
+      transfer(prot, 'r', socket, buffer, BUFFLEN, servaddr, &len);
       printf("%s\n", buffer);
   }
 
@@ -178,13 +181,13 @@ void receive_file(int socket, char *buffer, char *path) {
   strcat(strcat(strcat(get_path(buffer), "data/"), strcpy(file_name, path)),".jpg");
   printf("\nreceving profile image: \"%s\"...\n", buffer);
   output = fopen(buffer, "wb"); // create/erase file to write
-
-  read_d(socket, buffer);           // Read size
+  
+  transfer(prot, 'r', socket, buffer, BUFFLEN, servaddr, &len); // Read size
   size = strtol(buffer, NULL, 10);  // Cast size to long int
 
   while (i < size) {
-    read_d(socket, buffer); // Read a full buffer.
-    for (base = i; (i < base + BUFFLEN) && (i < size); ++i) // Write elements
+    transfer(prot, 'r', socket, buffer, BUFFLEN, servaddr, &len); // Read a full buffer.
+    for (base = i; (i < base + BUFFLEN) && (i < size); ++i)       // Write elements
       fputc(buffer[i%BUFFLEN], output);
   }
 
