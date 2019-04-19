@@ -1,16 +1,19 @@
 # variables
-CC=gcc
+CC=gcc -o
 RM=rm -f
 
-all: servers client
+all: server_udp server_tcp client_dual
 
-servers: server/server_tcp.c server/server_udp.c
-	$(CC) -o server/server_udp server/server_udp.c
-	$(CC) -o server/server_tcp server/server_tcp.c
+server_udp: server/server_udp.c
+	$(CC) server/server_udp server/server_udp.c
 
-client: client/client.c
-	$(CC) -o client/client client/client.c
+server_tcp: server/server_tcp.c
+	$(CC) server/server_tcp server/server_tcp.c
+
+client_dual: client/client.c
+	$(CC) client/client client/client.c
 
 clean:
-	$(RM) server/server_udp server/server_tcp
+	$(RM) server/server_udp 
+	$(RM) server/server_tcp
 	$(RM) client/client
