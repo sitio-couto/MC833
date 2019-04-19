@@ -15,9 +15,11 @@
 #define TCP_PORT "3490" // the port client will be connecting to
 #define UDP_PORT "8080"
 
+typedef struct sockaddr* sap;
+
 // Funcions signatures
 void receive_file(int, char*, char*);
-void make_request(int);
+void make_request(int, int, sap);
 char* get_name(char*);
 void send_file(int, char*, char*);
 void receive_data(int, char*);
@@ -63,12 +65,12 @@ int read_d(int socket, char *buffer) {
 
 // UDP SEND AND RECEIVE WRAPPERS ///////////////////////////////////////////////
 // Debuggin wrapper for sendto
-int write_udp(int socket, char *buffer, int length, struct sockaddr *target){
+int write_udp(int socket, char *buffer, int length, sap target){
   int i, r_val;
 
   // Fill message to standard size of buffer
   for (i = length; i < BUFFLEN; ++i) buffer[i] = '\0';
-
+  printf("%s\n", buffer);
   if ((r_val = sendto(socket, (const char*)buffer, BUFFLEN, MSG_CONFIRM, target, sizeof(struct sockaddr))) == -1) {
     perror("ERROR: send");
     exit(1);
@@ -81,7 +83,7 @@ int write_udp(int socket, char *buffer, int length, struct sockaddr *target){
 }
 
 // Debuggin wrapper for recvfrom
-int read_udp(int socket, char *buffer, struct sockaddr *sender, int* sender_len) {
+int read_udp(int socket, char *buffer, sap sender, int* sender_len) {
   int r_val, total = 0;
 
   while (total != BUFFLEN) {
@@ -98,4 +100,15 @@ int read_udp(int socket, char *buffer, struct sockaddr *sender, int* sender_len)
   }
 
   return total;
+}
+
+// UDP||TCP SELECTOR WRAPPER ////////////////////////////////////////////////////
+int transfer(char prot, char op, int sock, char *buff, int len, sap pair, int* pair_len) {
+  int r_val = -1;
+  if      (prot == 't' && op == 'w') r_val = write_d(sock, buff, len);
+  else if (prot == 'u' && op == 'w') r_val = write_udp(sock, buff, len, pair);
+  else if (prot == 't' && op == 'r') r_val = read_d(sock, buff);
+  else if (prot == 'u' && op == 'r') r_val = read_udp(sock, buff, pair, pair_len);
+  else    printf("Unknown protocol/operation!\n");
+  return r_val;
 }

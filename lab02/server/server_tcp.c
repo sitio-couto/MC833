@@ -54,16 +54,7 @@ int main(int argc, char *argv[]){
       printf("server: got connection\n");
       if (!fork()) { // this is the child process
           close(sockfd); // child doesn't need the listener
-//////////// TESTING
-          n = read_d(new_fd, buffer);
-          buffer[n] = '\0';
-          printf("Client : %s\n", buffer);
-          strcpy(buffer, "TCP server is ready.");
-          len = strlen(buffer);
-          write_d(new_fd, buffer, len);
-          printf("Message sent.\n");
-          // request_options(new_fd); // Communication function
-//////////// *******
+          request_options(new_fd); // Communication function
           close(new_fd);
           exit(0);
       }
@@ -77,14 +68,7 @@ int main(int argc, char *argv[]){
 
 void request_options(int socket) {
   char buffer[BUFFLEN];
-
-  // notify connections is set
-  strcpy(buffer, "connection is set...\n");
-  write_d(socket, buffer, strlen(buffer));
-
-  // notify connections is set
-  strcpy(buffer, "Type help for instructions");
-  write_d(socket, buffer, strlen(buffer));
+  double elapsed;
 
   while(1){
     // Await new message from client
@@ -99,13 +83,22 @@ void request_options(int socket) {
         get_profile(socket, buffer, strtok(NULL, " "));
         printf("profile sent.\n");
         break;
+      case 't':
+        read_d(socket, buffer);
+        printf("Client : %s\n", buffer);
+        strcpy(buffer, "TCP server is ready.");
+        gettimeofday(&t2, NULL);
+        write_d(socket, buffer, strlen(buffer));
+        printf("Message sent.\n");
+        break;
       case 'e':
         return;
       default:
+        gettimeofday(&t2, NULL);
         printf("invalid option\n");
     }
 
-    double elapsed = (t2.tv_sec - t1.tv_sec) + ((t2.tv_usec - t1.tv_usec)/1000000.0);
+    elapsed = (t2.tv_sec - t1.tv_sec) + ((t2.tv_usec - t1.tv_usec)/1000000.0);
     printf("Real time: %lf\n", elapsed);
 
     if (time_path) {

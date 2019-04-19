@@ -9,6 +9,8 @@ FILE* time_output;
 struct timeval t1, t2;
 double elapsed;
 
+char prot;
+
 int main(int argc, char *argv[])
 {
     int sock_udp, sock_tcp, rv;
@@ -83,26 +85,9 @@ int main(int argc, char *argv[])
     // Save destination server for UDP
     servaddr = p->ai_addr;
 
-/// TESTING
-    int len, n;
+    // Make requests to udp and tcp servers
+    make_request(sock_tcp, sock_udp, servaddr);
 
-    strcpy(buffer,"TCP full power");
-    len = strlen(buffer);
-    write_d(sock_tcp, buffer, len);
-    n = read_d(sock_tcp, buffer);
-    buffer[n] = '\0';
-    printf("Server TCP: %s\n", buffer);
-
-    strcpy(buffer,"UDP full power");
-    len = strlen(buffer);
-    write_udp(sock_udp, buffer, len, servaddr);
-    n = read_udp(sock_udp, buffer, servaddr, &len);
-    buffer[n] = '\0';
-    printf("Server UDP: %s\n", buffer);
-////******
-
-
-    // make_request(sock_tcp);
     freeaddrinfo(servers); // all done with this structure
     close(sock_tcp);
     close(sock_udp);
@@ -112,38 +97,42 @@ int main(int argc, char *argv[])
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void make_request(int socket) {
+void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
   char buffer[BUFFLEN];
-  int i;
-
-  // receive server connection set confirmation
-  read_d(socket, buffer);
-  printf("%s\n", buffer);
-
-  // receive help
-  read_d(socket, buffer);
-  printf("%s\n", buffer);
-
+  double elapsed;
+  int i, socket, len;
 
   while(1) {
     // Scan and send user request
     printf("awaiting input:\n");
     scanf(" %[^\n]", buffer);
-    if (!strlen(buffer))
-      exit(1);
-    else if (time_path)
-      while(cpu_time_used = ((double) (clock() - end)) / CLOCKS_PER_SEC < 1);
+    if (!strlen(buffer)) exit(1);
 
+    // Set delay and starting time
+    if (time_path)
+      while(cpu_time_used = ((double) (clock() - end)) / CLOCKS_PER_SEC < 1);
     gettimeofday(&t1, NULL);
-    write_d(socket, buffer, strlen(buffer));
+
+    // Select protocol
+    prot = strtok(buffer, " ")[0];
+    if      (prot == 't') socket = sock_tcp;
+    else if (prot == 'u') socket = sock_udp;
+    transfer(prot, 'w', socket, &buffer[2], strlen(buffer), servaddr, &len);
 
     // Await server commands
-    switch (strtok(buffer, " ")[0]) {
+    switch (strtok(NULL, " ")[0]) {
       case '1':
         printf("awating profile...\n");
         receive_file(socket, buffer, strtok(NULL, " "));
         receive_data(socket, buffer);
         printf("\nprofile received\n");
+        break;
+      case 't':
+        if (prot == 'u') strcpy(buffer,"Testing UDP.");
+        else strcpy(buffer,"Testing TCP.");
+        transfer(prot, 'w', socket, buffer, strlen(buffer), servaddr, &len);
+        transfer(prot, 'r', socket, buffer, strlen(buffer), servaddr, &len);
+        printf("Server: %s\n", buffer);
         break;
       case 'e':
         return;
@@ -152,7 +141,7 @@ void make_request(int socket) {
     }
 
     gettimeofday(&t2, NULL);
-    double elapsed = (t2.tv_sec - t1.tv_sec) + ((t2.tv_usec - t1.tv_usec)/1000000.0);
+    elapsed = (t2.tv_sec - t1.tv_sec) + ((t2.tv_usec - t1.tv_usec)/1000000.0);
     printf("Real time: %lf\n", elapsed);
     end = clock();
 

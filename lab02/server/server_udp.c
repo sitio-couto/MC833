@@ -10,7 +10,7 @@ struct timeval t1, t2;
 double elapsed;
 
 int len;
-struct sockaddr_in cliaddr; // Client on current tunr
+struct sockaddr_in cliaddr; // Client on current turn
 
 int main() {
     int sockfd;
@@ -40,17 +40,8 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-//// TESTING
-    int len, n;
-
-    n = read_udp(sockfd, buffer, &cliaddr, &len);
-    buffer[n] = '\0';
-    printf("Client : %s\n", buffer);
-    strcpy(buffer, "UDP server is ready.");
-    len = strlen(buffer);
-    write_udp(sockfd, buffer, len, cliaddr);
-    printf("Message sent.\n");
-//// *******
+    request_options(sockfd);
+    close(sockfd);
 
     return 0;
 }
@@ -59,6 +50,8 @@ int main() {
 
 void request_options(int socket) {
   char buffer[BUFFLEN];
+  double elapsed;
+  int len, n;
 
   while(1){
     // Await new message from client
@@ -68,18 +61,27 @@ void request_options(int socket) {
 
     // Test which request the client aksed for
     switch (strtok(buffer, " ")[0]) {
-      case '6': // Get full profile
+      case '1': // Get full profile
         printf("retrieving profile...\n");
         get_profile(socket, buffer, strtok(NULL, " "));
         printf("profile sent.\n");
         break;
+      case 't':
+        read_udp(socket, buffer, &cliaddr, &len);
+        printf("Client : %s\n", buffer);
+        strcpy(buffer, "UDP server is ready.");
+        gettimeofday(&t2, NULL);
+        write_udp(socket, buffer, strlen(buffer), cliaddr);
+        printf("Message sent.\n");
+        break;
       case 'e':
         return;
       default:
+        gettimeofday(&t2, NULL);
         printf("invalid option\n");
     }
 
-    double elapsed = (t2.tv_sec - t1.tv_sec) + ((t2.tv_usec - t1.tv_usec)/1000000.0);
+    elapsed = (t2.tv_sec - t1.tv_sec) + ((t2.tv_usec - t1.tv_usec)/1000000.0);
     printf("Real time: %lf\n", elapsed);
 
     if (time_path) {
