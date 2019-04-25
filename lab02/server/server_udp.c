@@ -22,6 +22,11 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    if (argc == 2) {
+      time_path = argv[1];
+      time_output = fopen(time_path, "w");
+    }
+
     memset(&servaddr, 0, sizeof(servaddr));
     memset(&cliaddr, 0, sizeof(cliaddr));
 
@@ -40,6 +45,8 @@ int main(int argc, char *argv[]) {
 
     request_options(sockfd);
     close(sockfd);
+    
+    if (time_path) fclose(time_output);
 
     return 0;
 }
