@@ -86,6 +86,9 @@ int main(int argc, char *argv[])
     // Save destination server for UDP
     servaddr = p->ai_addr;
 
+    // Check if servers are responding
+    test_servers(sock_tcp, sock_udp, servaddr);
+
     // Make requests to udp and tcp servers
     make_request(sock_tcp, sock_udp, servaddr);
 
@@ -117,7 +120,7 @@ void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
     prot = strtok(buffer, " ")[0];
     if      (prot == 't') socket = sock_tcp;
     else if (prot == 'u') socket = sock_udp;
-    
+
     // Remove protocol from message and send to server
     strcpy(buffer, &buffer[2]);
     transfer(prot, 'w', socket, buffer, strlen(buffer), servaddr, &len);
@@ -129,13 +132,6 @@ void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
         receive_file(socket, buffer, strtok(NULL, " "));
         receive_data(socket, buffer);
         printf("\nprofile received\n");
-        break;
-      case 't':
-        if (prot == 'u') strcpy(buffer,"Testing UDP.");
-        else strcpy(buffer,"Testing TCP.");
-        transfer(prot, 'w', socket, buffer, strlen(buffer), servaddr, &len);
-        transfer(prot, 'r', socket, buffer, strlen(buffer), servaddr, &len);
-        printf("Server: %s\n", buffer);
         break;
       case 'e':
         return;
@@ -181,7 +177,7 @@ void receive_file(int socket, char *buffer, char *path) {
   strcat(strcat(strcat(get_path(buffer), "data/"), strcpy(file_name, path)),".jpg");
   printf("\nreceving profile image: \"%s\"...\n", buffer);
   output = fopen(buffer, "wb"); // create/erase file to write
-  
+
   transfer(prot, 'r', socket, buffer, BUFFLEN, servaddr, &len); // Read size
   size = strtol(buffer, NULL, 10);  // Cast size to long int
 

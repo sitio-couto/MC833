@@ -12,11 +12,9 @@ double elapsed;
 int len;
 struct sockaddr_in cliaddr; // Client on current turn
 
-int main() {
+int main(int argc, char *argv[]) {
     int sockfd;
     struct sockaddr_in servaddr;
-    // for testing
-    char buffer[BUFFLEN];
 
     // Creating socket file descriptor
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {

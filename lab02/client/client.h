@@ -18,6 +18,7 @@
 typedef struct sockaddr* sap;
 
 // Funcions signatures
+int test_servers(int, int, sap);
 void receive_file(int, char*, char*);
 void make_request(int, int, sap);
 char* get_name(char*);
@@ -70,7 +71,7 @@ int write_udp(int socket, char *buffer, int length, sap target){
 
   // Fill message to standard size of buffer
   for (i = length; i < BUFFLEN; ++i) buffer[i] = '\0';
-  printf("%s\n", buffer);
+
   if ((r_val = sendto(socket, (const char*)buffer, BUFFLEN, MSG_CONFIRM, target, sizeof(struct sockaddr))) == -1) {
     perror("ERROR: send");
     exit(1);
@@ -111,4 +112,24 @@ int transfer(char prot, char op, int sock, char *buff, int len, sap pair, int* p
   else if (prot == 'u' && op == 'r') r_val = read_udp(sock, buff, pair, pair_len);
   else    printf("Unknown protocol/operation!\n");
   return r_val;
+}
+
+// This function verifies if both servers are correctly set up ////////////////
+int test_servers(int sock_tcp, int sock_udp, struct sockaddr *servaddr){
+  int i, len, socket;
+  char buffer[BUFFLEN], prot[] = {'u', 't'};
+
+  for (i=0; i<2; ++i) {
+    if      (prot[i] == 't') socket = sock_tcp;
+    else if (prot[i] == 'u') socket = sock_udp;
+    strcpy(buffer,"t");
+    transfer(prot[i], 'w', socket, buffer, strlen(buffer), servaddr, &len);
+    if (prot[i] == 'u') strcpy(buffer,"Testing UDP.");
+    else strcpy(buffer,"Testing TCP.");
+    transfer(prot[i], 'w', socket, buffer, strlen(buffer), servaddr, &len);
+    transfer(prot[i], 'r', socket, buffer, strlen(buffer), servaddr, &len);
+    printf("%s\n", buffer);
+  }
+  
+  return 1;
 }
