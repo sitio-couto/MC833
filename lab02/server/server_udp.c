@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
     request_options(sockfd);
     close(sockfd);
-    
+
     if (time_path) fclose(time_output);
 
     return 0;
@@ -78,7 +78,7 @@ void request_options(int socket) {
         write_udp(socket, buffer, strlen(buffer), cliaddr);
         printf("Message sent.\n");
         break;
-      case 'e':
+      case 'e': // End connection
         return;
       default:
         gettimeofday(&t2, NULL);
@@ -91,8 +91,6 @@ void request_options(int socket) {
     if (time_path) {
       fprintf(time_output,"%lf\n", elapsed);
     }
-    // End connection if requested by client
-    if (!strcmp(buffer, "exit")) break;
   }
 
   return;
