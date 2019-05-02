@@ -17,8 +17,7 @@ int main(int argc, char *argv[])
 {
     int sock_udp, sock_tcp, rv;
     struct addrinfo hints, *p, *servers;
-    char buffer[BUFFLEN];
-
+    struct timeval timeout;
 
     if (argc < 2) {
         fprintf(stderr,"usage: client hostname\n");
@@ -86,6 +85,10 @@ int main(int argc, char *argv[])
     // Save destination server for UDP
     servaddr = p->ai_addr;
 
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 100000;
+    setsockopt(sock_udp, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+
     // Check if servers are responding
     test_servers(sock_tcp, sock_udp, servaddr);
 
@@ -133,6 +136,9 @@ void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
         receive_data(socket, buffer);
         printf("\nprofile received\n");
         break;
+      case 'f':
+        transfer('u', 'r', socket, buffer, strlen(buffer), servaddr, &len);
+        break;
       case 'e':
         return;
       default:
@@ -141,11 +147,16 @@ void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
 
     gettimeofday(&t2, NULL);
     elapsed = (t2.tv_sec - t1.tv_sec) + ((t2.tv_usec - t1.tv_usec)/1000000.0);
-    printf("Real time: %lf\n", elapsed);
+    printf("Real time: %lfal time: 0.107454\n", elapsed);
     end = clock();
 
     if (time_path) {
-      fprintf(time_output,"%lf\n", elapsed);
+      if (errno == 11) {
+        fprintf(time_output,"package lost.\n");
+        errno = 0;
+      } else {
+        fprintf(time_output,"%lf\n", elapsed);
+      }
     }
   }
 
@@ -159,7 +170,7 @@ void receive_data(int socket, char *buffer) {
 
   buffer[0] = 'x';
   while (buffer[0] != '\0') {  // print all messages
-      transfer(prot, 'r', socket, buffer, BUFFLEN, servaddr, &len);
+      if(transfer(prot, 'r', socket, buffer, BUFFLEN, servaddr, &len) < 0) return;
       printf("%s\n", buffer);
   }
 
@@ -178,11 +189,11 @@ void receive_file(int socket, char *buffer, char *path) {
   printf("\nreceving profile image: \"%s\"...\n", buffer);
   output = fopen(buffer, "wb"); // create/erase file to write
 
-  transfer(prot, 'r', socket, buffer, BUFFLEN, servaddr, &len); // Read size
+  if(transfer(prot, 'r', socket, buffer, BUFFLEN, servaddr, &len) < 0) return; // Read size
   size = strtol(buffer, NULL, 10);  // Cast size to long int
 
   while (i < size) {
-    transfer(prot, 'r', socket, buffer, BUFFLEN, servaddr, &len); // Read a full buffer.
+    if(transfer(prot, 'r', socket, buffer, BUFFLEN, servaddr, &len) < 0) return; // Read a full buffer.
     for (base = i; (i < base + BUFFLEN) && (i < size); ++i)       // Write elements
       fputc(buffer[i%BUFFLEN], output);
   }

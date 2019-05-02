@@ -51,7 +51,7 @@ int read_d(int socket, char *buffer) {
 
   while (total != BUFFLEN) {
     if ((r_val = recv(socket, &buffer[total], (BUFFLEN - total), 0)) == -1) {
-      perror("ERROR: send");
+      perror("ERROR: receive");
       exit(1);
     } else if (r_val == 0) { // if client not responding
       printf("ERROR: pairing socket is closed\n");
@@ -90,8 +90,13 @@ int read_udp(int socket, char *buffer, sap sender, int* sender_len) {
   while (total != BUFFLEN) {
     if ((r_val = recvfrom(socket, &buffer[total], (BUFFLEN - total), MSG_WAITALL,
                           sender, sender_len)) == -1) {
-      perror("ERROR: send");
-      exit(1);
+      perror("ERROR: receive");
+      if (errno != 11)
+        exit(1);
+      else {
+        printf("client: reached timeout (package might have been lost).\n");
+        return -1;
+      }
     } else if (r_val == 0) { // if client not responding
       printf("ERROR: pairing socket is closed\n");
       exit(1);
@@ -130,6 +135,6 @@ int test_servers(int sock_tcp, int sock_udp, struct sockaddr *servaddr){
     transfer(prot[i], 'r', socket, buffer, strlen(buffer), servaddr, &len);
     printf("%s\n", buffer);
   }
-  
+
   return 1;
 }

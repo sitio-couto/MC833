@@ -89,7 +89,10 @@ void request_options(int socket) {
     printf("Real time: %lf\n", elapsed);
 
     if (time_path) {
-      fprintf(time_output,"%lf\n", elapsed);
+      if (errno == 11) {
+        fprintf(time_output,"package lost.\n");
+        errno = 0;
+      } else fprintf(time_output,"%lf\n", elapsed);
     }
   }
 
