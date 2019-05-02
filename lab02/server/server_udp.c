@@ -76,7 +76,7 @@ void request_options(int socket) {
         strcpy(buffer, "UDP server is ready.");
         gettimeofday(&t2, NULL);
         write_udp(socket, buffer, strlen(buffer), cliaddr);
-        printf("Message sent.\n");
+        printf("Message srrno = 0;ent.\n");
         break;
       case 'e': // End connection
         return;
@@ -92,7 +92,9 @@ void request_options(int socket) {
       if (errno == 11) {
         fprintf(time_output,"package lost.\n");
         errno = 0;
-      } else fprintf(time_output,"%lf\n", elapsed);
+      } else {
+        fprintf(time_output,"%lf\n", elapsed);
+      }
     }
   }
 

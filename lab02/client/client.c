@@ -147,7 +147,7 @@ void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
 
     gettimeofday(&t2, NULL);
     elapsed = (t2.tv_sec - t1.tv_sec) + ((t2.tv_usec - t1.tv_usec)/1000000.0);
-    printf("Real time: %lfal time: 0.107454\n", elapsed);
+    printf("Real time: %lf\n", elapsed);
     end = clock();
 
     if (time_path) {
