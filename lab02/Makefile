@@ -2,15 +2,15 @@
 CC=gcc -o
 RM=rm -f
 
-all: server_udp server_tcp client_dual
+all: server/server_udp server/server_tcp client/client
 
-server_udp: server/server_udp.c
+server/server_udp: server/server_udp.c
 	$(CC) server/server_udp server/server_udp.c
 
-server_tcp: server/server_tcp.c
+server/server_tcp: server/server_tcp.c
 	$(CC) server/server_tcp server/server_tcp.c
 
-client_dual: client/client.c
+client/client: client/client.c
 	$(CC) client/client client/client.c
 
 clean:
