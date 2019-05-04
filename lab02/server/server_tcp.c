@@ -91,7 +91,7 @@ void request_options(int socket) {
         printf("Message sent.\n");
         break;
       case 'e':
-        printf("Client (%d): ended connction\n",getpid());
+        printf("Client (%d): ended connection\n",getpid());
         return;
       default:
         gettimeofday(&t2, NULL);
