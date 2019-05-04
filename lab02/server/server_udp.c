@@ -76,7 +76,7 @@ void request_options(int socket) {
         strcpy(buffer, "UDP server is ready.");
         gettimeofday(&t2, NULL);
         write_udp(socket, buffer, strlen(buffer), cliaddr);
-        printf("Message srrno = 0;ent.\n");
+        printf("Message sent.\n");
         break;
       default:
         gettimeofday(&t2, NULL);
@@ -93,7 +93,7 @@ void request_options(int socket) {
       } else {
         fprintf(time_output,"%lf\n", elapsed);
       }
-      fflush(time_output);
+      fflush(time_output)
     }
   }
 
