@@ -112,7 +112,6 @@ void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
     // Scan and send user request
     printf("awaiting input:\n");
     scanf(" %[^\n]", buffer);
-    if (!strlen(buffer)) exit(1);
 
     // Set delay and starting time
     if (time_path)
@@ -123,6 +122,11 @@ void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
     prot = strtok(buffer, " ")[0];
     if      (prot == 't') socket = sock_tcp;
     else if (prot == 'u') socket = sock_udp;
+    else if (prot == 'e' || prot == 'q') {
+      strcpy(buffer,"e");
+      transfer('t', 'w', sock_tcp, buffer, strlen(buffer), servaddr, &len);
+      return;
+    }
 
     // Remove protocol from message and send to server
     strcpy(buffer, &buffer[2]);

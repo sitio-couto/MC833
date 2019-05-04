@@ -78,8 +78,6 @@ void request_options(int socket) {
         write_udp(socket, buffer, strlen(buffer), cliaddr);
         printf("Message srrno = 0;ent.\n");
         break;
-      case 'e': // End connection
-        return;
       default:
         gettimeofday(&t2, NULL);
         printf("invalid option\n");
@@ -95,6 +93,7 @@ void request_options(int socket) {
       } else {
         fprintf(time_output,"%lf\n", elapsed);
       }
+      fflush(time_output);
     }
   }
 
