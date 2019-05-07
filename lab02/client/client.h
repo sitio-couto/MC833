@@ -18,7 +18,7 @@
 typedef struct sockaddr* sap;
 
 // Funcions signatures
-int test_servers(int, int, sap);
+int test_server(char, int, sap);
 void receive_file(int, char*, char*);
 void make_request(int, int, sap);
 char* get_name(char*);
@@ -120,21 +120,16 @@ int transfer(char prot, char op, int sock, char *buff, int len, sap pair, int* p
 }
 
 // This function verifies if both servers are correctly set up ////////////////
-int test_servers(int sock_tcp, int sock_udp, struct sockaddr *servaddr){
-  int i, len, socket;
-  char buffer[BUFFLEN], prot[] = {'u', 't'};
+int test_server(char prot, int socket, struct sockaddr *servaddr){
+  int len;
+  char buffer[BUFFLEN];
 
-  for (i=0; i<2; ++i) {
-    if      (prot[i] == 't') socket = sock_tcp;
-    else if (prot[i] == 'u') socket = sock_udp;
-    strcpy(buffer,"t");
-    transfer(prot[i], 'w', socket, buffer, strlen(buffer), servaddr, &len);
-    if (prot[i] == 'u') strcpy(buffer,"Testing UDP.");
-    else strcpy(buffer,"Testing TCP.");
-    transfer(prot[i], 'w', socket, buffer, strlen(buffer), servaddr, &len);
-    transfer(prot[i], 'r', socket, buffer, strlen(buffer), servaddr, &len);
-    printf("%s\n", buffer);
-  }
+  strcpy(buffer,"t");
+  transfer(prot, 'w', socket, buffer, strlen(buffer), servaddr, &len);
+  if (prot == 'u') strcpy(buffer,"Testing UDP.");
+  else strcpy(buffer,"Testing TCP.");
+  transfer(prot, 'w', socket, buffer, strlen(buffer), servaddr, &len);
+  transfer(prot, 'r', socket, buffer, strlen(buffer), servaddr, &len);
 
   return 1;
 }

@@ -90,7 +90,8 @@ int main(int argc, char *argv[])
     setsockopt(sock_udp, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 
     // Check if servers are responding
-    test_servers(sock_tcp, sock_udp, servaddr);
+    test_server('t',sock_tcp, servaddr);
+    test_server('u',sock_udp, servaddr);
 
     // Make requests to udp and tcp servers
     make_request(sock_tcp, sock_udp, servaddr);
@@ -118,11 +119,11 @@ void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
       while(cpu_time_used = ((double) (clock() - end)) / CLOCKS_PER_SEC < 1);
     gettimeofday(&t1, NULL);
 
-    // Select socket by protocol
+    // Select socket by protocoltest_server('t',sock_tcp, servaddr);
     prot = strtok(buffer, " ")[0];
     if      (prot == 't') socket = sock_tcp;
     else if (prot == 'u') {
-      test_servers(sock_tcp, sock_udp, servaddr);
+      test_server('u', sock_udp, servaddr);
       socket = sock_udp;
     } else if (prot == 'e' || prot == 'q') {
       strcpy(buffer,"e");
