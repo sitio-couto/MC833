@@ -51,7 +51,7 @@ int read_d(int socket, char *buffer) {
 
   while (total != BUFFLEN) {
     if ((r_val = recv(socket, &buffer[total], (BUFFLEN - total), 0)) == -1) {
-      perror("ERROR: receive");
+      perror("ERROR: recv");
       exit(1);
     } else if (r_val == 0) { // if client not responding
       printf("ERROR: pairing socket is closed\n");
@@ -73,7 +73,7 @@ int write_udp(int socket, char *buffer, int length, sap target){
   for (i = length; i < BUFFLEN; ++i) buffer[i] = '\0';
 
   if ((r_val = sendto(socket, (const char*)buffer, BUFFLEN, MSG_CONFIRM, target, sizeof(struct sockaddr))) == -1) {
-    perror("ERROR: send");
+    perror("ERROR: sendto");
     exit(1);
   } else if (r_val == 0) {
     printf("ERROR: pairing socket is closed\n");
@@ -90,16 +90,16 @@ int read_udp(int socket, char *buffer, sap sender, int* sender_len) {
   while (total != BUFFLEN) {
     if ((r_val = recvfrom(socket, &buffer[total], (BUFFLEN - total), MSG_WAITALL,
                           sender, sender_len)) == -1) {
-      perror("ERROR: receive");
-      if (errno != 11)
-        exit(1);
-      else {
+      if (errno != 11){
+        printf("ERROR: message might be lost/corrupted.\n");
+        return -1;
+      } else {
         printf("client: reached timeout (package might have been lost).\n");
         return -1;
       }
     } else if (r_val == 0) { // if client not responding
       printf("ERROR: pairing socket is closed\n");
-      exit(1);
+      return -1;
     } else {
       total += r_val;
     }

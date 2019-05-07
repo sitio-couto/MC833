@@ -121,8 +121,10 @@ void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
     // Select socket by protocol
     prot = strtok(buffer, " ")[0];
     if      (prot == 't') socket = sock_tcp;
-    else if (prot == 'u') socket = sock_udp;
-    else if (prot == 'e' || prot == 'q') {
+    else if (prot == 'u') {
+      test_servers(sock_tcp, sock_udp, servaddr);
+      socket = sock_udp;
+    } else if (prot == 'e' || prot == 'q') {
       strcpy(buffer,"e");
       transfer('t', 'w', sock_tcp, buffer, strlen(buffer), servaddr, &len);
       return;
