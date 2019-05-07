@@ -93,7 +93,6 @@ void request_options(int socket) {
       } else {
         fprintf(time_output,"%lf\n", elapsed);
       }
-      fflush(time_output)
     }
   }
 
