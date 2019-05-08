@@ -73,11 +73,11 @@ int write_udp(int socket, char *buffer, int length, struct sockaddr_in target, i
   for (i = length; i < BUFFLEN; ++i) buffer[i] = '\0';
 
   if ((r_val = sendto(socket, (const char*)buffer, BUFFLEN, MSG_CONFIRM, (const struct sockaddr*)&target, sender_len)) == -1) {
-    perror("ERROR: sendto");
-    exit(1);
+    printf("ERROR: client info might have been lost.\n");
+    return -1;
   } else if (r_val == 0) {
     printf("ERROR: pairing socket is closed\n");
-    exit(1);
+    return -1;
   }
 
   return r_val;

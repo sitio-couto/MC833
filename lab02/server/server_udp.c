@@ -72,11 +72,8 @@ void request_options(int socket) {
         break;
       case 't':
         read_udp(socket, buffer, &cliaddr, &len);
-        printf("Client : %s\n", buffer);
-        strcpy(buffer, "UDP server is ready.");
         gettimeofday(&t2, NULL);
         write_udp(socket, buffer, strlen(buffer), cliaddr, len);
-        printf("Message sent.\n");
         break;
       default:
         gettimeofday(&t2, NULL);
@@ -127,15 +124,14 @@ void get_profile(int socket, char* buffer, char *buff_email) {
   while (fgets(buffer, BUFFLEN, fptr)) {
     strcpy(tag, tags[line]);
     strcat(tag, buffer);
-    write_udp(socket, tag, strlen(tag), cliaddr, len);
-    // write_d(socket, tag, strlen(tag));
+    if (write_udp(socket, tag, strlen(tag), cliaddr, len) < 0)
+      return;
     if (line < 6) ++line;
   }
 
   gettimeofday(&t2, NULL);
   write_udp(socket, buffer, 0, cliaddr, len);
-  // write_d(socket, buffer, 0); // Send empty buffer to sinal eof
-
+  
   return;
 }
 
@@ -155,14 +151,12 @@ void send_file(int socket, char *buffer, char *full_path) {
   fseek(input, 0, SEEK_SET);
 
   sprintf(buffer, "%ld", size);             // Cast size to string
-  write_udp(socket, buffer, strlen(buffer), cliaddr, len);
-  // write_d(socket, buffer, strlen(buffer));  // Send file size to client
-
+  if (write_udp(socket, buffer, strlen(buffer), cliaddr, len) < 0) return;
+ 
   while (i < size) { // reads char by char filling buffer until eof
     buffer[(i++)%BUFFLEN] = fgetc(input); // Add char to buffer, then incremente i
     if (i%BUFFLEN == 0 || i == size)      // i buffer full or EOF send data
-      write_udp(socket, buffer, BUFFLEN, cliaddr, len);
-      // write_d(socket, buffer, BUFFLEN);   // sends entire buffer to avoid border issues
+      if (write_udp(socket, buffer, BUFFLEN, cliaddr, len) < 0) return;
   }
 
   gettimeofday(&t2, NULL);

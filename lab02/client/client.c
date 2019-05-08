@@ -89,10 +89,6 @@ int main(int argc, char *argv[])
     timeout.tv_usec = 100000;
     setsockopt(sock_udp, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 
-    // Check if servers are responding
-    test_server('t',sock_tcp, servaddr);
-    test_server('u',sock_udp, servaddr);
-
     // Make requests to udp and tcp servers
     make_request(sock_tcp, sock_udp, servaddr);
 
@@ -123,7 +119,7 @@ void make_request(int sock_tcp, int sock_udp, struct sockaddr *servaddr) {
     prot = strtok(buffer, " ")[0];
     if      (prot == 't') socket = sock_tcp;
     else if (prot == 'u') {
-      test_server('u', sock_udp, servaddr);
+      // test_server('u', sock_udp, servaddr);
       socket = sock_udp;
     } else if (prot == 'e' || prot == 'q') {
       strcpy(buffer,"e");
