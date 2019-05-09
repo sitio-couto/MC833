@@ -13,7 +13,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#define BUFFLEN 64000     // Length of the message buffer
+#define BUFFLEN 256     // Length of the message buffer
 #define TCP_PORT 3490   // the TCP port users will be connecting to
 #define UDP_PORT 8080   // the UDP port users will be connectiog to
 #define BACKLOG 10      // how many pending connections queue will hold
