@@ -11,7 +11,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#define BUFFLEN 256 // Length of the message buffer
+#define BUFFLEN 64000 // Length of the message buffer
 #define TCP_PORT "3490" // the port client will be connecting to
 #define UDP_PORT "8080"
 
