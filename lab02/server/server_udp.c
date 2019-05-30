@@ -90,6 +90,7 @@ void request_options(int socket) {
       } else {
         fprintf(time_output,"%lf\n", elapsed);
       }
+      fflush(time_output);
     }
   }
 
@@ -131,7 +132,7 @@ void get_profile(int socket, char* buffer, char *buff_email) {
 
   gettimeofday(&t2, NULL);
   write_udp(socket, buffer, 0, cliaddr, len);
-  
+
   return;
 }
 
@@ -152,7 +153,7 @@ void send_file(int socket, char *buffer, char *full_path) {
 
   sprintf(buffer, "%ld", size);             // Cast size to string
   if (write_udp(socket, buffer, strlen(buffer), cliaddr, len) < 0) return;
- 
+
   while (i < size) { // reads char by char filling buffer until eof
     buffer[(i++)%BUFFLEN] = fgetc(input); // Add char to buffer, then incremente i
     if (i%BUFFLEN == 0 || i == size)      // i buffer full or EOF send data
