@@ -20,7 +20,7 @@ public class Profile implements Serializable {
         this.formacao = formacao;
         this.habilidades = habilidades;
         this.experiencias = experiencias;
-}
+    }
 
     public String getEmail() {
         return this.nome + " " + this.sobrenome;
