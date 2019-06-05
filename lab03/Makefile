@@ -3,10 +3,10 @@ CC=javac
 JAR=jar cvf
 RM=rm -f
 
-all: server/server_udp server/server_tcp client/client
+all: compute engine client
 
-compute: compute/Compute.java compute/Task.java
-	$(CC) compute/Compute.java compute/Task.java
+compute: compute/Compute.java
+	$(CC) compute/Compute.java
 	$(JAR) compute/compute.jar compute/*.class
 
 engine: engine/ComputeEngine.java compute/compute.jar

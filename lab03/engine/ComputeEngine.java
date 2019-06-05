@@ -13,8 +13,12 @@ public class ComputeEngine implements Compute {
         super();
     }
 
-    public <T> T executeTask(Task<T> t) {
-        return t.execute();
+    public String executeRequest(String request) {
+        String response;
+
+        // Server work
+
+        return response;
     }
 
     public static void main(String[] args) {
