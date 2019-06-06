@@ -43,7 +43,6 @@ public class ComputeEngine implements Compute {
             ioe.printStackTrace();
             return;
         }
-
     }
 
     public String executeRequest(String request) {
@@ -52,7 +51,7 @@ public class ComputeEngine implements Compute {
         try {
             
             // Split request into type and data
-            String[] input = s.split(" ", 2);
+            String[] input = request.split(" ", 2);
 
             // Send help information
             if (input[0].equals("help"){
@@ -88,7 +87,7 @@ public class ComputeEngine implements Compute {
                     break;
                 case 5:
                     System.out.println("sending all profiles...");
-                    response = getAllProfiles(input[1]);
+                    response = getAllProfiles();
                     System.out.println("all profiles sent");
                     break;
                 case 6:
@@ -105,41 +104,82 @@ public class ComputeEngine implements Compute {
         
         return response;
     }
-
-    // TODO: Option functions
     
-    public String namesByCourse(String data) {
-        String response;
+    public String namesByCourse(String course) {
+        String names = "";
 
-        return response;
+        for (Profile p : map.values()) {
+            if (p.getFormacao().equals(course)) {
+                names += p.getNomeCompleto() + "\n";
+            }
+        }
+
+        return names;
     }
 
-    public String habilitiesByCity(String data) {
-        String response;
+    public String habilitiesByCity(String city) {
+        String habilities = "";
 
-        return response;
+        for (Profile p : map.values()) {
+            if (p.getResidencia().equals(city)) {
+                habilities += p.getNomeCompleto() ": " + p.getHabilidades() + "\n";
+            }
+        }
+
+        return habilities;
     }
 
     public String addExperience(String data) {
         String response;
 
+        String[] token = data.split(" ", 2); // email and experience
+
+        if (map.containsKey(token[0])) {
+            Profile p = map.get(token[0]);
+            p.addExperiencia(token[1]); // Verify if its really saved into the map
+            response = "Experience added";
+        }
+        else {
+            response = "Profile not found";
+        }
+
         return response;
     }
 
-    public String getExperience(String data) {
+    public String getExperience(String email) {
         String response;
+
+        if (map.containsKey(email)) { 
+            Profile p = map.get(data);
+            response = p.getExperiencias();
+        }
+        else {
+            response = "Profile not found";
+        }
 
         return response;
     }
 
-    public String getAllProfiles(String data) {
-        String response;
+    public String getAllProfiles() {
+        String response = "";
+
+        for (Profile p : map.values()) {
+            response += p.toString();
+        }
 
         return response;
     }
 
     public String getProfile(String data) {
         String response;
+
+        if (map.containsKey(data)) { 
+            Profile p = map.get(data);
+            response = p.toString();
+        }
+        else {
+            response = "Profile not found";
+        }
 
         return response;
     }

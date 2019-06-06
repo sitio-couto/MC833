@@ -34,6 +34,10 @@ public class Profile implements Serializable {
         return this.residencia;
     }
 
+    public String getFormacao() {
+        return this.formacao;
+    }
+
     public String getHabilidades() {
         return this.habilidades;
     }
@@ -57,6 +61,6 @@ public class Profile implements Serializable {
                 + "Residência: " + this.residencia + "\n"
                 + "Formação Acadêmica: " + this.formacao + "\n"
                 + "Habilidades: " + this.habilidades + "\n"
-                + "Experiência: " + this.getExperiencias();
+                + "Experiência: " + this.getExperiencias() + "\n";
     }
 }
