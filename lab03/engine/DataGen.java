@@ -8,9 +8,9 @@ import engine.Profile;
 
 public class DataGen {
 
-    public HashMap<String,Profile> map = null;
+    public static void main(String[] args) {
 
-    public DataGen() {
+        HashMap<String,Profile> map = new HashMap<String,Profile>();
         
         // Instanciate the profiles
         List<String> profile1_exp = new LinkedList<String>();
@@ -40,5 +40,7 @@ public class DataGen {
             ioe.printStackTrace();
             return;
         }
+
+        return;
     }
 }

@@ -10,9 +10,9 @@ public class Client {
     public static void main(String args[]) {
 	String request;
 
-        if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new SecurityManager());
-        }
+        //if (System.getSecurityManager() == null) {
+        //    System.setSecurityManager(new SecurityManager());
+        //}
         try {
             String name = "Compute";
             Registry registry = LocateRegistry.getRegistry(args[0]);

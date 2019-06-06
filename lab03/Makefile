@@ -8,16 +8,18 @@ CODEBASE_INTERNAL=compute/compute.jar
 CODEBASE_EXTERNAL=compute/compute.jar
 REGISTRY=rmiregistry
 
-all: compute engine client
+all: compute/compute.jar compute/*.class engine/*.class client/*.class
 
-compute: compute/Compute.java
-	$(CC) compute/Compute.java
+compute/%.class: compute/%.java
+	$(CC) compute/$*.java
+
+compute/compute.jar: compute/*.class 
 	$(JAR) compute/compute.jar compute/*.class
 
-engine: engine/ComputeEngine.java engine/Profile.java engine/DataGen.java compute/compute.jar
-	$(CC) -cp compute/compute.jar engine/ComputeEngine.java engine/Profile.java engine/DataGen.java
+engine/*.class: compute/compute.jar engine/*.java
+	$(CC) -cp compute/compute.jar engine/*.java
 
-client: client/*.java
+client/*.class: compute/compute.jar compute/*.java
 	$(CC) -cp compute/compute.jar client/*.java
 
 clean:
