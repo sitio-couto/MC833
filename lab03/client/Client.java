@@ -7,9 +7,9 @@ import compute.Compute;
 
 public class Client {
 
-    public String request;
-
     public static void main(String args[]) {
+	String request;
+
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
         }
@@ -34,7 +34,7 @@ public class Client {
                 }
 
                 // Send request to server and print response
-                String response = comp.executeRequest(this.request);
+                String response = comp.executeRequest(request);
                 System.out.println(response);                
 
             }

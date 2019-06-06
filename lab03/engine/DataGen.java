@@ -1,5 +1,11 @@
 package engine;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.LinkedList;
+import java.io.*;
+import engine.Profile;
+
 public class DataGen {
 
     public HashMap<String,Profile> map = null;
@@ -11,12 +17,12 @@ public class DataGen {
         profile1_exp.add("Servidores Linux");
         profile1_exp.add("Segurança em redes");
         profile1_exp.add("Criptografia PGP");
-        profile1 = new Profile("carlos@unicamp.br", "Carlos", "Merenda", "Campinas", "Engenharia de Computação", "Criptografia, Servidores", profile1_exp);
+        Profile profile1 = new Profile("carlos@unicamp.br", "Carlos", "Merenda", "Campinas", "Engenharia de Computação", "Criptografia, Servidores", profile1_exp);
 
         List<String> profile2_exp = new LinkedList<String>();
         profile2_exp.add("Redesign de interfaces");
         profile2_exp.add("Acessibilidade em sites");
-        profile2 = new Profile("joao@unicamp.br", "João", "Santos", "São Paulo", "Ciência da Computação", "UI, Acessibilidade", profile2_exp);
+        Profile profile2 = new Profile("joao@unicamp.br", "João", "Santos", "São Paulo", "Ciência da Computação", "UI, Acessibilidade", profile2_exp);
 
         // Build the HashMap
         map.put("carlos@unicamp.br", profile1);
@@ -32,7 +38,7 @@ public class DataGen {
             fos.close();
         } catch(IOException ioe) {
             ioe.printStackTrace();
-            return "IO Error";
+            return;
         }
     }
 }

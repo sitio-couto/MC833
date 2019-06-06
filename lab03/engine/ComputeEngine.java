@@ -4,17 +4,24 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.HashMap;
-import java.lang.split;
-import java.lang.Integer.parseInt;
+import java.lang.*;
 import compute.Compute;
+import engine.Profile;
 
 public class ComputeEngine implements Compute {
 
     public HashMap<String,Profile> map = null;
 
     public ComputeEngine() {
+
+        // Call executeRequest()
+        super();
+    }
+
+    public String executeRequest(String request) {
+        String response = "";
 
         // De-serialization
         try {
@@ -25,28 +32,11 @@ public class ComputeEngine implements Compute {
             fis.close();
         } catch(IOException ioe) {
             ioe.printStackTrace();
-            return;
-        }
-
-        // Call executeRequest()
-        super();
-
-        // Serialization
-        try {
-            FileOutputStream fos =
-            new FileOutputStream("data.ser");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(map);
-            oos.close();
-            fos.close();
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-            return;
-        }
-    }
-
-    public String executeRequest(String request) {
-        String response;
+            return "Reading database error";
+        } catch(ClassNotFoundException cnf) {
+	    return "Class not found";
+	}
+	
 
         try {
             
@@ -54,18 +44,18 @@ public class ComputeEngine implements Compute {
             String[] input = request.split(" ", 2);
 
             // Send help information
-            if (input[0].equals("help"){
+            if (input[0].equals("help")){
                 return "Opções disponíveis: \n" +
                        "1 - listar todas as pessoas formadas em um determinado curso; \n" +
                        "2 - listar as habilidades dos perfis que moram em uma determinada cidade; \n" +
                        "3 - acrescentar uma nova experiência em um perfil; \n" +
                        "4 - dado o email do perfil, retornar sua experiência; \n" +
                        "5 - listar todas as informações de todos os perfis; \n" +
-                       "6 - dado o email de um perfil, retornar suas informações."
+                       "6 - dado o email de um perfil, retornar suas informações.";
             }
             
             // Select request type
-            switch(input[0].parseInt()) {
+            switch(Integer.parseInt(input[0])) {
                 case 1:
                     System.out.println("retrieving name by course...");
                     response = namesByCourse(input[1]);
@@ -101,6 +91,19 @@ public class ComputeEngine implements Compute {
         } catch(NumberFormatException nfe) {
             return "Invalid option: " + nfe.getMessage();
         }
+
+        // Serialization
+        try {
+            FileOutputStream fos =
+            new FileOutputStream("data.ser");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(map);
+            oos.close();
+            fos.close();
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+            return "Saving database error";
+        }
         
         return response;
     }
@@ -122,7 +125,7 @@ public class ComputeEngine implements Compute {
 
         for (Profile p : map.values()) {
             if (p.getResidencia().equals(city)) {
-                habilities += p.getNomeCompleto() ": " + p.getHabilidades() + "\n";
+                habilities += p.getNomeCompleto() + ": " + p.getHabilidades() + "\n";
             }
         }
 
@@ -150,7 +153,7 @@ public class ComputeEngine implements Compute {
         String response;
 
         if (map.containsKey(email)) { 
-            Profile p = map.get(data);
+            Profile p = map.get(email);
             response = p.getExperiencias();
         }
         else {
