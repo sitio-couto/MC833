@@ -4,11 +4,9 @@ JAR=jar cvf
 RUN=java
 RM=rm -f
 HOSTNAME=localhost
-CODEBASE_INTERNAL=compute/compute.jar
-CODEBASE_EXTERNAL=compute/compute.jar
 REGISTRY=rmiregistry
 
-all: compute/compute.jar compute/*.class engine/*.class client/*.class
+all: compute/compute.jar engine/*.class client/*.class
 
 compute/%.class: compute/%.java
 	$(CC) compute/$*.java
@@ -31,8 +29,11 @@ clean:
 registry:
 	$(REGISTRY) &
 
-run-server:
-	$(RUN) -cp engine:compute/compute.jar -Djava.rmi.server.codebase=$(CODEBASE_INTERNAL) -Djava.rmi.server.hostname=$(HOSTNAME) -Djava.security.policy=server.policy engine/ComputeEngine
+run-datagen: engine/DataGen.class
+	$(RUN) engine/DataGen
 
-run-client:
-	$(RUN) -cp client:compute/compute.jar -Djava.rmi.server.codebase=$(CODEBASE_EXTERNAL) -Djava.security.policy=client.policy client/Client $(HOSTNAME) 45
+run-server: engine/ComputeEngine.class
+	$(RUN) engine/ComputeEngine -Djava.rmi.server.hostname=$(HOSTNAME)
+
+run-client: client/Client.class
+	$(RUN) client/Client $(HOSTNAME) 45
