@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.lang.*;
 import compute.Compute;
 import engine.Profile;
+import java.util.concurrent.TimeUnit;
 
 public class ComputeEngine implements Compute {
 
@@ -22,6 +23,8 @@ public class ComputeEngine implements Compute {
 
     public String executeRequest(String request) {
         String response = "";
+
+        long startTime = System.nanoTime();
 
         // De-serialization
         try {
@@ -57,36 +60,37 @@ public class ComputeEngine implements Compute {
             // Select request type
             switch(Integer.parseInt(input[0])) {
                 case 1:
-                    System.out.println("retrieving name by course...");
+                    //System.out.println("retrieving name by course...");
                     response = namesByCourse(input[1]);
-                    System.out.println("names retrieved");
+                    //System.out.println("names retrieved");
                     break;
                 case 2:
-                    System.out.println("retrieving habilities by city...");
+                    //System.out.println("retrieving habilities by city...");
                     response = habilitiesByCity(input[1]);
-                    System.out.println("habilities retrieved");
+                    //System.out.println("habilities retrieved");
                     break;
                 case 3:
-                    System.out.println("adding experience...");
+                    //System.out.println("adding experience...");
                     response = addExperience(input[1]);
                     break;
                 case 4:
-                    System.out.println("retrieving experiences...");
+                    //System.out.println("retrieving experiences...");
                     response = getExperience(input[1]);
-                    System.out.println("experiences retrieved");
+                    //System.out.println("experiences retrieved");
                     break;
                 case 5:
-                    System.out.println("sending all profiles...");
+                    //System.out.println("sending all profiles...");
                     response = getAllProfiles();
-                    System.out.println("all profiles sent");
+                    //System.out.println("all profiles sent");
                     break;
                 case 6:
-                    System.out.println("retrieving profile...");
+                    //System.out.println("retrieving profile...");
                     response = getProfile(input[1]);
-                    System.out.println("profile sent");
+                    //System.out.println("profile sent");
                     break;
                 default:
-                    System.out.println("Invalid option");
+                    //System.out.println("Invalid option");
+                    response = "Invalid option";
             }
         } catch(NumberFormatException nfe) {
             return "Invalid option: " + nfe.getMessage();
@@ -105,6 +109,10 @@ public class ComputeEngine implements Compute {
             return "Saving database error";
         }
         
+        long endTime = System.nanoTime();
+        long timeElapsed = endTime - startTime;
+        System.out.println(timeElapsed);
+
         return response;
     }
     
@@ -197,7 +205,7 @@ public class ComputeEngine implements Compute {
             Compute stub = (Compute) UnicastRemoteObject.exportObject(engine, 0);
             Registry registry = LocateRegistry.getRegistry();
             registry.rebind(name, stub);
-            System.out.println("ComputeEngine bound");
+            //System.out.println("ComputeEngine bound");
         } catch (Exception e) {
             System.err.println("ComputeEngine exception:");
             e.printStackTrace();

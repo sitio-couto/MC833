@@ -36,4 +36,4 @@ run-server: engine/ComputeEngine.class
 	$(RUN) engine/ComputeEngine -Djava.rmi.server.hostname=$(HOSTNAME)
 
 run-client: client/Client.class
-	$(RUN) client/Client $(HOSTNAME) 45
+	$(RUN) client/Client $(HOSTNAME)

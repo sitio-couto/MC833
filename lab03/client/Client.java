@@ -4,6 +4,9 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Scanner;
 import compute.Compute;
+import java.util.concurrent.TimeUnit;
+import java.io.PrintWriter;
+import java.io.FileWriter;
 
 public class Client {
 
@@ -23,7 +26,7 @@ public class Client {
 
             Scanner scanner = new Scanner(System.in);
 
-            while(true){
+            while(scanner.hasNextLine()){
                 
                 // Read client input
                 request = scanner.nextLine();
@@ -34,9 +37,21 @@ public class Client {
                 }
 
                 // Send request to server and print response
+                long startTime = System.nanoTime();
                 String response = comp.executeRequest(request);
-                System.out.println(response);                
-
+                long endTime = System.nanoTime();
+                long timeElapsed = endTime - startTime;
+        
+                System.out.println(response);
+                
+                // Print and save time
+                System.out.println("Execution time in nanoseconds: " + timeElapsed);
+                if (args.length > 1) {
+                    FileWriter fileWriter = new FileWriter(args[1], true);
+                    PrintWriter printWriter = new PrintWriter(fileWriter);
+                    printWriter.print(timeElapsed + "\n");
+                    printWriter.close();
+                }
             }
 
         } catch (Exception e) {
