@@ -11,7 +11,7 @@ all: compute/compute.jar engine/*.class client/*.class
 compute/%.class: compute/%.java
 	$(CC) compute/$*.java
 
-compute/compute.jar: compute/*.class 
+compute/compute.jar: compute/*.class
 	$(JAR) compute/compute.jar compute/*.class
 
 engine/*.class: compute/compute.jar engine/*.java
