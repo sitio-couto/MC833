@@ -37,12 +37,12 @@ public class ComputeEngine implements Compute {
             ioe.printStackTrace();
             return "Reading database error";
         } catch(ClassNotFoundException cnf) {
-	    return "Class not found";
-	}
-	
+    	      return "Class not found";
+    	  }
+
 
         try {
-            
+
             // Split request into type and data
             String[] input = request.split(" ", 2);
 
@@ -54,9 +54,10 @@ public class ComputeEngine implements Compute {
                        "3 - acrescentar uma nova experiência em um perfil; \n" +
                        "4 - dado o email do perfil, retornar sua experiência; \n" +
                        "5 - listar todas as informações de todos os perfis; \n" +
-                       "6 - dado o email de um perfil, retornar suas informações.";
+                       "6 - dado o email de um perfil, retornar suas informações.\n" +
+                       "------------------------------------------------------------------------------";
             }
-            
+
             // Select request type
             switch(Integer.parseInt(input[0])) {
                 case 1:
@@ -108,14 +109,14 @@ public class ComputeEngine implements Compute {
             ioe.printStackTrace();
             return "Saving database error";
         }
-        
+
         long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;
         System.out.println(timeElapsed);
 
         return response;
     }
-    
+
     public String namesByCourse(String course) {
         String names = "";
 
@@ -160,7 +161,7 @@ public class ComputeEngine implements Compute {
     public String getExperience(String email) {
         String response;
 
-        if (map.containsKey(email)) { 
+        if (map.containsKey(email)) {
             Profile p = map.get(email);
             response = p.getExperiencias();
         }
@@ -184,7 +185,7 @@ public class ComputeEngine implements Compute {
     public String getProfile(String data) {
         String response;
 
-        if (map.containsKey(data)) { 
+        if (map.containsKey(data)) {
             Profile p = map.get(data);
             response = p.toString();
         }

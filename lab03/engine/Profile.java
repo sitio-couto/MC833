@@ -2,7 +2,7 @@ package engine;
 
 import java.io.Serializable;
 import java.util.List;
- 
+
 public class Profile implements Serializable {
     private String email;
     private String nome;
@@ -54,13 +54,13 @@ public class Profile implements Serializable {
     public void addExperiencia(String experiencia) {
         this.experiencias.add(experiencia);
     }
- 
+
     public String toString() {
         return "Email: " + this.email + "\n"
                 + "Nome: " + this.nome + " Sobrenome: " + this.sobrenome + "\n"
                 + "Residência: " + this.residencia + "\n"
                 + "Formação Acadêmica: " + this.formacao + "\n"
                 + "Habilidades: " + this.habilidades + "\n"
-                + "Experiência: " + this.getExperiencias() + "\n";
+                + "Experiência: \n" + this.getExperiencias() + "\n";
     }
 }

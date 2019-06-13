@@ -11,7 +11,7 @@ import java.io.FileWriter;
 public class Client {
 
     public static void main(String args[]) {
-	String request;
+	     String request;
 
         //if (System.getSecurityManager() == null) {
         //    System.setSecurityManager(new SecurityManager());
@@ -27,7 +27,7 @@ public class Client {
             Scanner scanner = new Scanner(System.in);
 
             while(scanner.hasNextLine()){
-                
+
                 // Read client input
                 request = scanner.nextLine();
 
@@ -41,17 +41,19 @@ public class Client {
                 String response = comp.executeRequest(request);
                 long endTime = System.nanoTime();
                 long timeElapsed = endTime - startTime;
-        
+
+                System.out.println("-----------------------------------------");
                 System.out.println(response);
-                
+
                 // Print and save time
-                System.out.println("Execution time in nanoseconds: " + timeElapsed);
+                System.out.println("<<Execution time in nanoseconds: " + timeElapsed + ">>");
                 if (args.length > 1) {
                     FileWriter fileWriter = new FileWriter(args[1], true);
                     PrintWriter printWriter = new PrintWriter(fileWriter);
                     printWriter.print(timeElapsed + "\n");
                     printWriter.close();
                 }
+                System.out.println("-----------------------------------------");
             }
 
         } catch (Exception e) {
