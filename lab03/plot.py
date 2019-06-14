@@ -3,11 +3,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-op_means = (4.260997, 3.735667, 3.847504, 5.376635, 4.403842, 7.504373)
-op_std =   (0.616119, 0.243934, 0.390795, 1.556925, 0.267154, 5.517604)
+op_means = (4.260997, 3.735667, 3.847504, 4.326635, 4.403842, 4.687217)
+op_std =   (0.616119, 0.243934, 0.390795, 0.373852, 0.267154, 0.252629)
 
-com_means = (1.015860, 1.060541, 1.083282, 1.142348, 1.447465, 1.373099)
-com_std =   (0.100033, 0.077996, 0.086935, 0.122500, 0.120674, 0.107703)
+com_means = (1.015860, 1.060541, 1.083282, 1.142348, 1.447465, 1.390255)
+com_std =   (0.100033, 0.077996, 0.086935, 0.122500, 0.120674, 0.120734)
 
 
 ind = np.arange(len(op_means))  # the x locations for the groups
@@ -40,5 +40,6 @@ def autolabel(rects, xpos='center'):
 
 autolabel(rects1, "left")
 autolabel(rects2, "right")
+plt.ylim(top=7)
 plt.tight_layout()  
 plt.show()
